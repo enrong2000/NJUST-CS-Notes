@@ -1,4 +1,4 @@
-# [Updated 2024-10-16] 程序设计基础（I）总结
+# [Updated 2024-10-18] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -40,7 +40,9 @@
 
 ### 课后作业布置记录
 
-[2024-10-16] 作业[Pg. 67 - 28题]
+[2024-10-16] 作业 [Pg. 67 - 28题]
+
+[2024-10-18] 作业 [Pg.89 - 11题]
 
 ## 课前代码练习
 
@@ -219,6 +221,71 @@ int main()
 上面列出的是一个简单的例子，让大家了解OJ的工作原理。后续我们的上机考试应该都是使用这种方式进行评测，建议同学们先按照这种方式练习打代码，以防止在后续OJ提交时出现这样明明会做，但无法通过评测的情况。
 
 ---
+
+### 2024-10-18 分离整数与小数
+
+**[题目描述]**
+
+给定一个浮点数，输出它的整数部分和小数部分。
+
+**[输入说明]**
+
+输入一个浮点数。
+
+**[输出说明]**
+
+分别输出这个浮点数的整数部分和小数部分，用空格分隔。
+
+**[样例输入]**
+
+```
+-32767.65536
+```
+
+**[样例输出]**
+
+```
+-32767 -0.65536
+```
+
+---
+
+<font color = red>本题为作业，不进行完整代码演示。仅对其中比较重要的内容进行说明。</font>
+
+#### 浮点数的存储
+
+对于一个浮点数而言，其在计算机内的存储是以科学计数法的方式进行的，那么如果要判定两个浮点数相等，最好的方式是使用极限的定义，即：
+
+取足够小的值$\epsilon$，当两个浮点数的差值小于$\epsilon$即可认为两个浮点数相等。
+
+#### 输出流的控制
+
+见教材Pg. 509页，其中对cout输出流的格式控制中，当在头文件中加入\<iomanip\>头文件后，可以通过使用setprecision(int)控制浮点数输出的精度，追加fixed是指setprecision(int)中int的值为小数点后的位数，。
+
+> 不难理解"iomanip"的意思，其名称是Input Output Manipulation(输入输出控制)
+
+如下为一段示例代码：
+
+```C++
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main()
+{
+    double	a = 32767.65536;
+    cout << a << endl;
+    cout << fixed << setprecision(2) << a << endl;
+    return 0;
+}
+```
+
+运行这段代码得到的结果是：
+
+```
+32767.7
+32767.66
+```
 
 ## 上课内容总结
 
@@ -633,3 +700,432 @@ i
 #### 显式类型转换
 
 (人工指定类型进行转换，在之前10月09日的上机练习中已经出现过，不再重复说明)
+
+### 顺序语句
+
+我们之前写的所有代码都是顺序语句，即按顺序执行的语句，此处不多额外说明。
+
+### 选择语句
+
+#### if-else语句
+
+可以表示为(下方为伪代码)：
+
+```C++
+if(Condition 1 Met)
+{
+	//Do Something
+}
+else if(Condition 2 Met) // Condition 1 is False, but Condition 2 is True
+{
+    //Do Something
+}
+else // Neither Condition 1 nor Condition 2 is True
+{
+    // Do Something
+}
+```
+
+用这样的语句形式可以套很多条件，不仅限于两个条件。
+
+示例程序：对学生成绩进行分级。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    double score;
+    
+    cin >> score;
+    if(score > 100 || score < 0)
+    {
+        cout << "Invalid Input" << endl;
+    }
+    else if(score >= 90)
+    {
+        cout << "Grade: A" << endl;
+    }
+    else if(score >= 80)
+    {
+        cout << "Grade: B" << endl;
+    }
+    else if(score >= 70)
+    {
+        cout << "Grade: C" << endl;
+    }
+    else if(score >= 60)
+    {
+        cout << "Grade: D" << endl;
+    }
+    else
+    {
+        cout << "Grade: E(Fail)" << endl;
+    }
+    
+    return 0;
+}
+```
+
+这个时候就有同学要问了，为什么我不在第一个else if语句处判定(score <= 100)呢？
+
+因为代码执行第一个else if语句时，<font color = red>已经执行过if(score > 100 || score < 0)的判断，且这个条件不为真</font>，那么进行 else if(score >=90) 判断时，已经确认score<=100且score>=0，没有必要再将其写入条件。
+
+#### switch语句
+
+枚举可能出现的值，并依枚举出的值对其进行判断，为了防止出现在执行过程中改变被判断变量的问题，在每个情况下执行完相应操作后都要写break语句。
+
+我们来看一个错误示例。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int score	= 100;
+    
+    switch(score/10)
+    {
+        case 10:
+        case 9:
+            cout << "A" << endl;
+        case 8:
+            cout << "B" << endl;
+        case 7:
+            cout << "C" << endl;
+        case 6:
+            cout << "D" << endl;
+        default:
+            cout << "Fail" << endl;
+    }
+    return 0;
+}
+```
+
+这段代码输出的结果是：
+
+```
+A
+B
+C
+D
+Fail
+```
+
+显然不是我们想要的结果，这就是因为swtich语句中不遇break不会跳出语句块，导致将下面的语句全部执行。
+
+那么修改正确的代码是：
+
+```
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int score	= 100;
+    
+    switch(score/10)
+    {
+        case 10:
+        case 9:
+            cout << "A" << endl;
+            break;
+        case 8:
+            cout << "B" << endl;
+            break;
+        case 7:
+            cout << "C" << endl;
+            break;
+        case 6:
+            cout << "D" << endl;
+            break;
+        default:
+            cout << "Fail" << endl;
+            break;
+    }
+    return 0;
+}
+```
+
+这次的输出是：
+
+```
+A
+```
+
+符合要求。
+
+#### 调试
+
+在Dev Cpp中，如要调试代码，可在代码中打上断点后点击上方的对勾按钮进行调试。
+
+调试过程中可添加查看，以查看变量的值在代码运行过程中的变化情况。
+
+如在调试过程中遇到闪退的情况，请参见[这篇文章](https://blog.csdn.net/qq_44723773/article/details/104299866)和[这篇文章](https://www.cnblogs.com/eesoft/p/15609793.html)。
+
+### 循环语句
+
+对于反复执行的语句，我们可以使用循环语句执行。
+
+#### for循环
+
+格式如下：
+
+```C++
+for ([初始条件]; [目标条件]; [递增语句])
+    //Do Sth
+```
+
+初始条件：即为循环开始的条件；
+
+目标条件：即为循环结束的条件；
+
+递增条件：即为循环进行过程中，每执行一次循环体后执行的操作，通常为使循环变量自增。
+
+示例代码：(输出从1-10的所有数字，每个数字单独一行)
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        cout << i + 1 << endl;
+    }
+    return 0;
+}
+```
+
+运行这段代码得到的结果是：
+
+```
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+```
+
+这里需要注意的是，为什么我会选择让$i$从0开始，而不是从1开始呢？
+
+> 我们知道，计算机内，数字是从0开始递增，而不是从1开始递增，所以对于一个十个元素的数组(之后会遇到)a[10]，其数组的下标是a[0], a[1], a[2], a[3], ..., a[9].
+>
+> 所以同样是执行十次，让循环变量从0开始执行时，会更符合数组下标的变化情况，从而防止可能出现的数组下标越界导致的程序异常。
+
+还有一个问题，一定要写满三个条件吗？
+
+答案是可以选择性地留空，比如初始条件在循环体外定义，自增操作在循环体内进行等。
+
+但一定要注意不要让循环成为死循环（即不可能结束的无限执行的循环，如果没有在for循环的括号中定义目标条件，那就一定要在循环体中通过条件语句判断并使用break语句跳出循环）。
+
+上课例程：通过for循环的嵌套，输出九九乘法表：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    for(int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j <= i; j++)
+        {
+            cout << (i + 1) << '*' << (j + 1) << '=' << (i + 1) * (j + 1);
+            if (j != i)
+            {
+                cout << '\t';
+            }
+        }
+        cout << endl;
+    }
+    return 0;
+}
+```
+
+输出结果是
+
+```
+1*1=1
+2*1=2   2*2=4
+3*1=3   3*2=6   3*3=9
+4*1=4   4*2=8   4*3=12  4*4=16
+5*1=5   5*2=10  5*3=15  5*4=20  5*5=25
+6*1=6   6*2=12  6*3=18  6*4=24  6*5=30  6*6=36
+7*1=7   7*2=14  7*3=21  7*4=28  7*5=35  7*6=42  7*7=49
+8*1=8   8*2=16  8*3=24  8*4=32  8*5=40  8*6=48  8*7=56  8*8=64
+9*1=9   9*2=18  9*3=27  9*4=36  9*5=45  9*6=54  9*7=63  9*8=72  9*9=81
+```
+
+#### while和do-while循环
+
+相比for循环，while循环更加简单，其格式为：
+
+```C++
+while(条件)
+{
+    // Do Sth
+}
+```
+
+当符合条件时，即执行循环体中的语句。注意是**先判断，再执行**。
+
+另一种是do-while，相比while语句，它是**先执行，再判断**。
+
+```C++
+do
+{
+	// Do Sth
+}while(条件)
+```
+
+示例程序：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int i = 0;
+	
+	while(i < 10)
+    {
+        cout << (i + 1) << ' ';
+        i++;
+    }
+    
+    do
+    {
+        cout << (i + 1) << ' ';
+        i++;
+    }while(i < 10);
+    return 0;
+}
+```
+
+输出结果：
+
+```
+1 2 3 4 5 6 7 8 9 10 11
+```
+
+想想为什么最后会输出11.
+
+#### break和continue
+
+break代表直接终止循环，而continue则跳过后续代码，直接进入下一次循环。
+
+示例代码：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        if (i == 3)
+        {
+            continue;
+        }
+        cout << (i + 1) << ' ';
+    }
+    cout << endl;
+    
+    for (int i = 0; i < 10; i++)
+    {
+        if (i == 3)
+        {
+            break;
+        }
+        cout << (i + 1) << ' ';
+    }
+    return 0;
+}
+```
+
+运行结果为：
+
+```
+1 2 3 5 6 7 8 9 10
+1 2 3
+```
+
+思考这个运行结果的原因。
+
+### 例题选讲
+
+#### [Pg. 85] 例4.11
+
+写法不唯一，可用于参考思路。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int a;
+
+int main()
+{
+    cin >> a;
+    
+    while (a)	// 等效于 while(a != 0)
+    {
+        if (a < 0)
+        {
+            cout << "Invalid Input, Please Input A POSITIVE Integer." << endl;
+            cin >> a;
+            continue;
+        }
+        
+        while (a)
+        {
+            cout << a % 10;
+            a /= 10;
+        }
+        
+        cout << endl;
+        cin >> a;
+    }
+    return 0;
+}
+```
+
+#### [Pg. 86] 例4.12
+
+写法不唯一，可用于参考思路。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    for (int i = 1; i <= (100 / 5); i++)
+    {
+        for (int j = 1; (5 * i) + (3 * j) <= 100; j++)
+        {
+            for (int k = 3; (5 * i) + (3 * j) + (k / 3) <= 100; k += 3)
+            {
+                if ((5 * i + 3 * j + k / 3 == 100) && (i + j + k == 100))
+                {
+                    cout << i << ' ' << j << ' ' << k << endl;
+                }
+            }
+        }
+    }
+    return 0;
+}
+```
+
+*(暴力枚举答案)*
