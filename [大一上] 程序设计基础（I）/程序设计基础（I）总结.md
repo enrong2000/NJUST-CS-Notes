@@ -1,4 +1,4 @@
-# [Updated 2024-10-18] 程序设计基础（I）总结
+# [Updated 2024-10-23] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -42,7 +42,7 @@
 
 [2024-10-16] 作业 [Pg. 67 - 28题]
 
-[2024-10-18] 作业 [Pg.89 - 11题]
+[2024-10-18] 作业 [Pg. 89 - 11题]
 
 ## 课前代码练习
 
@@ -1129,3 +1129,337 @@ int main()
 ```
 
 *(暴力枚举答案)*
+
+### 习题课
+
+#### 习题4_11_1
+
+思路：利用位运算，逐次将高位向低处移动后进行输出。
+
+(上课讲的方法对负数是直接输出原码)
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a;
+    cin >> a;
+    
+    if(a < 0)
+    {
+        cout << '-';
+        a	*= -1;
+    }
+    
+    for (int i = 31; i >= 0; i--)
+    {
+        cout << (a >> i & 0x01);
+        // 将a向右移i位，并只取最低一位输出
+    }
+    
+    cout << endl;
+    return 0;
+}
+```
+
+*(如果我就是要输出负数的补码呢？)*
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int a;
+    cin >> a;
+
+    for (int i = 31; i >= 0; i--)
+    {
+        cout << (a >> i & 0x01);
+        // 将a向右移i位，并只取最低一位输出
+    }
+    
+    cout << endl;
+    return 0;
+}
+```
+
+思考为什么省掉对负数的判断后，负数就会正常输出补码。
+
+#### 习题4_11_2
+
+思路：与上一题类似，右移位数改成4，初始位数改为28。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int a;
+	cin >> a;
+	
+	if(a < 0)
+	{
+		cout << '-';
+		a	*= -1;
+	}
+	
+	cout << "0x";
+	
+	for (int i = 28; i >= 0; i -= 4)
+	{
+		int tmp	= (a >> i & 0x0f);
+		
+		switch(tmp)
+        {
+            case 15:
+                cout << 'f';
+                break;
+            case 14:
+                cout << 'e';
+                break;
+            case 13:
+                cout << 'd';
+                break;
+            case 12:
+                cout << 'c';
+                break;
+            case 11:
+                cout << 'b';
+                break;
+            case 10:
+                cout << 'a';
+                break;
+            default:
+                cout << tmp;
+                break;
+        }
+	}
+	
+	return 0;
+}
+```
+
+*(这个时候就有同学要问了，这么多条件枚举出来，不是很麻烦吗？)*
+
+我们再来看看用if的写法：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int a;
+	cin >> a;
+	
+	if(a < 0)
+	{
+		cout << '-';
+		a	*= -1;
+	}
+	
+	cout << "0x";
+	
+	for (int i = 28; i >= 0; i -= 4)
+	{
+		int tmp	= (a >> i & 0x0f);
+		
+		if (tmp >= 0 && tmp < 10)
+		{
+			cout << tmp;
+		}
+		else
+		{
+			cout << (char)(tmp - 10 + 'a');
+		}
+	}
+	
+	return 0;
+}
+```
+
+这里最妙的是什么呢？利用char类型存储ASCII码值时，可通过增加字母之间的差值来得到对应的字符。
+
+也就是这里：
+
+```C++
+(char)(tmp - 10 + 'a')
+```
+
+#### 习题4_11_3
+
+在计算机中，数值的表示是有上限的，当加、减、乘超出这个上限，出现的溢出现象是不可控的。
+
+我们原本判定是否会溢出最大值的方式是检查$Current \times i > MAX$是否成立，成立则说明已经到达最大值。
+
+但考虑到运算过程中的溢出问题，$Current \times i$即便溢出也无法正确表达。
+
+既然乘会溢出，那么我们不妨反过来，用不等式两侧同时除以$i$以达到相同效果。
+
+也就是：$Current > \frac{MAX}{i}$
+
+对应的代码实现就是(这里使用的是int，对于long long来说同理)：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	unsigned int MAX	= 0xffffffff;
+	unsigned int x = 1;
+	unsigned int n = 1;
+	
+	while(1)
+	{
+		if (MAX / x < n)
+		{
+			cout << "x=" << x << endl;
+			cout << "n=" << n << endl;
+			break;
+		}
+		x = x * n;
+		n++;
+	}
+	return 0;
+}
+```
+
+#### 习题4_11_4
+
+这里的问题是如何解决输入字符的问题。
+
+这里我们使用char存储读入的字符，并对其进行判断。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	char ch;
+	int	count	= 0;
+	
+	while(1)
+	{
+		cin >> ch;
+		if (ch == 'q')
+		{
+			cout << count << endl;
+			break;
+		}
+		
+		if (ch >= '0' && ch <= '9')
+		{
+			count++;
+		}
+	}
+	return 0;
+}
+```
+
+#### 习题4_11_5
+
+思路同4_11_3，具体实现略。
+
+#### 习题4_11_6
+
+使用求根公式，注意判断是不是方程，以及是不是二次方程，考察if-else语句
+
+#### 习题4_11_7
+
+注意临时变量的使用。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int a = 1;
+	int b =2;
+	
+	cout << a << '/' << b << ' ';
+	a += 2;
+	
+	for (int i = 0; i < 19; i++)
+	{
+		cout << a << '/' << b << ' ';
+		int	tmp = b;
+		b = a;
+		a = a + tmp;
+	}
+	
+	return 0;
+}
+```
+
+#### 习题4_11_8
+
+对于一个整数而言，最简单的方式就是从1开始枚举尝试去除这个数以得到这个数的所有因子，由于该题数据规模较小，不需要对其进行剪枝，所以可以有这样的代码。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	for (int n = 2; n < 101; n++)
+	{
+		int sum = 0;
+		for (int i = 1; i < n; i++)
+		{
+			if (n % i == 0)
+			{
+				sum += i;
+			}
+		}
+		
+		if (sum == n)
+		{
+			cout << n << endl;
+		}
+	}
+}
+```
+
+#### 习题4_11_9
+
+使用while循环，对于每次兑换都更新瓶盖数和瓶子数。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int money	= 10;
+	// cin >> money;
+	int	pin		= money / 2;
+	int pingz	= pin;
+	int	gaiz	= pin;
+	
+	while (1)
+	{
+		if(pingz < 2 && gaiz < 4)
+		{
+			cout << pin << endl;
+			break;
+		}
+		
+		int	newpin	= 0;
+		newpin	+= pingz / 2;
+		pingz	%= 2;
+		newpin	+= gaiz / 4;
+		gaiz	%= 4;
+		pingz	+= newpin;
+		gaiz	+= newpin;
+		pin		+= newpin;
+	}
+	return 0;
+}
+```
