@@ -287,6 +287,181 @@ int main()
 32767.66
 ```
 
+### 2024-10-25 100以内的素数之和
+
+ **[题目要求]**
+
+输出100以内的所有素数之和
+
+**[输入格式]**
+
+无
+
+**[输出格式]**
+
+输出一行整数，表示100以内所有素数之和
+
+**[样例输入]**
+
+无
+
+**[样例输出]**
+
+*(正确编写程序后即可输出答案)*
+
+---
+
+这道题的重点在于如何判定一个数是否为素数。
+
+我们知道素数是仅能被1及其本身整除的数，所以我们要对素数进行单独验证。
+
+让我们来看一看这样的代码：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int n_Ans	= 0;
+	
+	for (int i = 2; i <= 100; i++)
+	{
+		int	n_Flag	= 1;
+		for (int j = 2; j * j <= i; j++)
+		{
+			if(!(i % j))
+			{
+				n_Flag	= 0;
+				break;
+			}
+		}
+		
+		if(n_Flag)
+		{
+			n_Ans	+= i;
+		}
+	}
+	
+	cout << n_Ans << endl;
+	
+	return 0;
+}
+```
+
+这里有聪明的同学要问了，为什么内层嵌套的循环中，循环的条件为$j \times j \leq i$呢？
+
+如果一个数不是素数，其最大的因子就是其平方根，所以大于其平方根的整数我们并不需要做判定，用这样的方式我们可以减少判定的次数，以达到提升程序运行效率的目的。
+
+我们再来看看老师的例程：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int sum = 0;
+	
+	for (int i = 2; i <= 100; i++)
+	{
+		if (i == 2)
+		{
+			sum += i;
+			continue;
+		}
+		
+		for (int j = 2; j <= i; j++)
+		{
+			if (i == j)
+			{
+				sum += i;
+			}
+			
+			if (i % j == 0)
+			{
+				break;
+			}
+		}
+	}
+	
+	cout << sum << endl;
+	
+	return 0;
+}
+```
+
+这样额外增加的判断逻辑不仅没有减小执行代码的时间复杂度，而且还因为复杂的逻辑增加了犯错的可能，对于代码的排错来说是不利的(这是已经修正好后的代码，可以对比一下两份代码的逻辑)。
+
+---
+
+### 2024-10-25 求一个数的所有质因子
+
+ **[题目要求]**
+
+输入一个正整数$A$，保证$A\leq 2000$，求出这个数的所有质因子，并将其质因子从小到大输出。
+
+**[输入格式]**
+
+一个整数$A$
+
+**[输出格式]**
+
+从小到大输出$A$的质因子，以空格隔开
+
+**[样例输入]**
+
+```
+6
+```
+
+**[样例输出]**
+
+```
+2 3
+```
+
+---
+
+判定素数的方式与上一道题相同，注意求其因子和求其是否为质因子的区别。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int	n_Num;
+	
+	cin >> n_Num;
+	
+	for (int i = 2; i <= n_Num; i++)
+	{
+		if (!(n_Num % i))
+		{
+			int	n_Flag	= 1;
+			for (int j = 2; j * j <= i; j++)
+			{
+				if (!(i % j))
+				{
+					n_Flag	= 0;
+					break;
+				}
+			}
+			if (n_Flag)
+			{
+				cout << i << " ";
+			}
+		}
+	}
+	
+	cout << endl;
+	return 0;
+}
+```
+
+## 
+
 ## 上课内容总结
 
 本部分是对上课内容的简单总结，可能会有遗漏，欢迎指出。
@@ -984,7 +1159,7 @@ while(条件)
 do
 {
 	// Do Sth
-}while(条件)
+}while(条件);
 ```
 
 示例程序：
@@ -1062,6 +1237,305 @@ int main()
 ```
 
 思考这个运行结果的原因。
+
+### 函数
+
+由2024年10月25日课前的代码练习引入思考一件事。
+
+<font color = red>既然我在这两份代码里都有判断素数的逻辑，如果我们每次都写这么一大串，太麻烦了，有没有办法让代码简化下来呢？</font>
+
+当然有，这就是我们今天引进讲解的内容：函数。
+
+简言之，函数就是我们造的可以重复用的轮子，打包好后，以简化代码中的重复操作，同时也可以。
+
+如果把我们的代码比作一间屋子的话，那么函数的作用就是像这张图一样让它的摆设和运行都井井有条：
+
+![Screenshot_20241025-112023](assets\Screenshot_20241025-112023.png)
+
+<center>形象化地形容函数</center>
+
+函数的格式为：
+
+```
+Return_Type Function_Name(Parameter 1, Parameter 2, ..., Parameter n)
+```
+
+> Return_Type: 函数的返回值
+> Function_Name: 函数的名字
+> Parameter 1, ... n: 函数的参数
+
+#### 函数的声明(Declaration)
+
+我们以两数加和的函数为例。
+
+```C++
+int add(int a, float b);
+```
+
+*声明了该函数，并不代表这个函数就存在。*
+
+#### 函数的实现 / 定义(Defination)
+
+我们还是以两数加和的函数为例。
+
+```C++
+int add(int a, float b)
+{
+	int c = a + b;
+	return c;
+}
+```
+
+#### 函数的调用(Invoke)
+
+在有函数声明和实现的情况下，我们可以在代码中对函数进行调用。
+
+```C++
+int x = 2;
+float y = 20.0;
+int sum = add(x, y);	// Function is Invoked Here.
+```
+
+#### 应用
+
+既然课前练习的代码中判断素数的代码被反复调用，我们不妨将其封装成一个函数，就像下面这段代码一样。
+
+```C++
+#include <iostream>
+using namespace std;
+
+bool is_Prime(int n_Check);		// Function Declaration
+
+int main()
+{
+	int sum = 0;
+	
+	for (int i = 2; i < 101; i++)
+	{
+		if (is_Prime(i))
+		{
+			sum	+= i;
+		}
+	}
+	
+	cout << sum << endl;
+	return 0;
+}
+
+bool is_Prime(int n_Check)		// Function Defination
+{
+	if (!(n_Check % 2))
+	{
+		if (n_Check	== 2)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	for (int i = 3; i * i <= n_Check; i += 2)
+	{
+		if (!(n_Check % i))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+```
+
+函数的声明和定义是可以同时进行的。
+
+如果在主函数之前声明过函数，可不在主函数之前对函数进行实现，但如果未在主函数之前进行声明，会导致报错，也就是会像下面这样。
+
+![image-20241025113504049](assets\image-20241025113504049.png)
+
+<center>错误消息: is_Prime未被声明</center>
+
+那我们如果再进行封装的话，主函数还能简化到什么地步呢？
+
+```C++
+#include <iostream>
+using namespace std;
+
+bool	is_Prime(int n_Check);		// Function Declaration
+int		n_CalcSum(int n_MAX);
+
+int main()
+{	
+	cout << n_CalcSum(100) << endl;
+	return 0;
+}
+
+bool is_Prime(int n_Check)		// Function Defination
+{
+	if (!(n_Check % 2))
+	{
+		if (n_Check	== 2)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	if (n_Check == 1)
+	{
+		return false;
+	}
+	
+	for (int i = 3; i * i <= n_Check; i += 2)
+	{
+		if (!(n_Check % i))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+int	n_CalcSum(int n_MAX)
+{
+	int	n_Result	= 0;
+	
+	for (int i = 2; i <= n_MAX; i++)
+	{
+		n_Result	+= is_Prime(i) ? i : 0;
+	}
+	
+	return n_Result;
+}
+```
+
+如果我们想要对输出某一区间内所有质数之和，那可以再造一个更**好用**的轮子。
+
+```C++
+#include <iostream>
+using namespace std;
+
+bool	is_Prime(int n_Check);		// Function Declaration
+int		n_CalcSum(int n_Left, int n_Right);
+
+int main()
+{	
+	cout << n_CalcSum(1, 100) << endl;
+	return 0;
+}
+
+bool is_Prime(int n_Check)		// Function Defination
+{
+	if (!(n_Check % 2))
+	{
+		if (n_Check	== 2)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	if (n_Check == 1)
+	{
+		return false;
+	}
+	
+	for (int i = 3; i * i <= n_Check; i += 2)
+	{
+		if (!(n_Check % i))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+int	n_CalcSum(int n_Left, int n_Right)
+{
+	int	n_Result	= 0;
+	
+	for (int i = n_Left >= 2 ? n_Left : 2; i <= n_Right; i++)
+	{
+		n_Result	+= is_Prime(i) ? i : 0;
+	}
+	
+	return n_Result;
+}
+```
+
+---
+
+同样的，对于课前练习的第二道题而言，用函数实现之后的主函数也非常简单。
+
+```C++
+#include <iostream>
+using namespace std;
+
+bool	is_Prime(int n_Check);		// Function Declaration
+void	v_CalcAndOutput(int n_MAX);
+
+int main()
+{
+	int	n_Num;
+	cin >> n_Num;
+	v_CalcAndOutput(n_Num);
+	return 0;
+}
+
+bool is_Prime(int n_Check)			// Function Defination
+{
+	if (!(n_Check % 2))
+	{
+		if (n_Check	== 2)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	if (n_Check == 1)
+	{
+		return false;
+	}
+	
+	for (int i = 3; i * i <= n_Check; i += 2)
+	{
+		if (!(n_Check % i))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+void v_CalcAndOutput(int n_MAX)
+{
+	for (int i = 2; i <= n_MAX; i++)
+	{
+		if (!(n_MAX % i))
+		{
+			if (is_Prime(i))
+			{
+				cout << i << " ";
+			}
+		}
+	}
+	return;
+}
+```
 
 ### 例题选讲
 
