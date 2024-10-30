@@ -1,4 +1,4 @@
-# [Updated 2024-10-25] 程序设计基础（I）总结
+# [Updated 2024-10-30] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -460,7 +460,185 @@ int main()
 }
 ```
 
-## 
+### 2024-10-30 函数编写
+
+**[题目要求]**
+
+写出4个函数，分别求传入的两个整数、传入的三个整数、传入的四个整数的和，以及求从第一个整数到第二个整数之间所有数字之和。
+
+---
+
+根据题目要求，我们不难写出这样的代码(因未对主函数中的输入和输出进行说明，我们只实现要求编写的函数，并在主函数中调用对应的函数，输出所需要输出的值)。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int	n_Sum(int n_NumA, int n_NumB);
+int	n_Sum(int n_NumA, int n_NumB, int n_NumC);
+int	n_Sum(int n_NumA, int n_NumB, int n_NumC, int n_NumD);
+int	n_SumSeg(int n_Left, int n_Right);
+
+int main()
+{
+	cout << n_Sum(1, 2) << endl << n_Sum(1, 2, 3) << endl <<
+			n_Sum(1, 2, 3, 4) << endl << n_SumSeg(1, 10) << endl;
+	return 0;
+}
+
+int n_Sum(int n_NumA, int n_NumB)
+{
+	return n_NumA + n_NumB;
+}
+
+int n_Sum(int n_NumA, int n_NumB, int n_NumC)
+{
+	return n_NumA + n_NumB + n_NumC;
+}
+
+int n_Sum(int n_NumA, int n_NumB, int n_NumC, int n_NumD)
+{
+	return n_NumA + n_NumB + n_NumC + n_NumD;
+}
+
+int n_SumSeg(int n_Left, int n_Right)
+{
+	int Sum	= 0;
+	
+	for (int i = n_Left; i <= n_Right; i++)
+	{
+		Sum	= n_Sum(i, Sum);
+	}
+	
+	return Sum;
+}
+```
+
+下面是老师的代码实现：
+
+ ```C++
+ #include <iostream>
+ using namespace std;
+ 
+ int add1(int a, int b);
+ int add2(int a, int b, int c);
+ int add3(int a, int b, int c, int d);
+ int add4(int m, int n);
+ 
+ int main()
+ {
+ 	cout << add1(2.1, 3);
+ 	return 0;
+ }
+ 
+ int add1(int a, int b)
+ {
+ 	return a + b;
+ }
+ 
+ int add2(int a, int b, int c)
+ {
+ 	return a + b + c;
+ 	// return add1(a, b) + c;
+ 	// return add1(add1(a, b), c);
+ }
+ 
+ int add3(int a, int b, int c, int d)
+ {
+ 	return a + b + c + d;
+ 	// return add2(a, b, c) + d;
+ 	// return add1(add2(a, b, c), d);
+ 	// ...
+ 	// There are many ways of invoking previous functions to complete the same task.
+ }
+ 
+ int add4(int m, int n)
+ {
+ 	int sum	= 0;
+ 	
+ 	for (int i = m; i <= n; i++)
+ 	{
+ 		sum += i;
+ 	}
+ 	
+ 	return sum;
+ }
+ ```
+
+这段代码中，给add1()传入的参数中有浮点数，但实际我们定义的add1函数的两个参数均为int，那么在执行时会将浮点数2.1强制转换为整数2再进行操作。
+
+而事实上，这些函数执行的操作都是相同的，都是进行几个数的加和，他们其实可以叫同一个名字，也就是我前面写的代码的写法。
+
+**但，函数名，函数相同吗？**
+
+当然不相同，因为函数只要**函数名、传入参数列表中变量类型及个数**中有任意一个不同，那就**不是同一个函数**。
+
+<font color = red>如果函数名，传入参数列表中变量类型及个数完全一样，只有返回类型不同的两个函数是不能在同一份代码中出现的，比如下面这个例子，在编译时就会报错提示代码中有二义性。</font>
+
+ ```C++
+ int add(int a, int b);
+ double add(int a, int b);
+ // ^ This is Ambiguous.
+ ```
+
+在实际执行程序的过程中，根据需要，在主函数中写对应需要的函数的参数，即可以正确进行调用。
+
+所以我们对上面的代码稍作改动，即可正确进行刚才传入浮点数的计算。
+
+ ```C++
+ #include <iostream>
+ using namespace std;
+ 
+ int add(int a, int b);
+ double add(double a, int b);			// <- Here, A New Function For Double a and Int b.
+ int add(int a, int b, int c);
+ int add(int a, int b, int c, int d);
+ int add4(int m, int n);
+ 
+ int main()
+ {
+ 	cout << add(2.1, 3);
+ 	return 0;
+ }
+ 
+ int add(int a, int b)
+ {
+ 	return a + b;
+ }
+ 
+ double add(double a, int b)				// <- Here, A New Defination for Double A and Int B
+ {
+ 	return a + (double)b;
+ }
+ 
+ int add(int a, int b, int c)
+ {
+ 	return a + b + c;
+ 	// return add1(a, b) + c;
+ 	// return add1(add1(a, b), c);
+ }
+ 
+ int add(int a, int b, int c, int d)
+ {
+ 	return a + b + c + d;
+ 	// return add2(a, b, c) + d;
+ 	// return add1(add2(a, b, c), d);
+ 	// ...
+ 	// There are many ways of invoking previous functions to complete the same task.
+ }
+  
+ int add4(int m, int n)
+ {
+ 	int sum	= 0;
+ 	
+ 	for (int i = m; i <= n; i++)
+ 	{
+ 		sum += i;
+ 	}
+ 	
+ 	return sum;
+ }
+ ```
 
 ## 上课内容总结
 
@@ -1536,6 +1714,159 @@ void v_CalcAndOutput(int n_MAX)
 	return;
 }
 ```
+
+#### 函数的重载
+
+函数的重载体现了代码的多态。
+
+> C++的特性：多态、封装、继承(派生)
+
+在2024年10月30日课前代码练习中，我们已经提到了这个特性，因为区分函数的方式是看函数名与参数列表中参数的个数和类型不同，所以我们可以写出多个同名，但参数列表不同的函数，以提升代码的可读性。
+
+#### 可变形参
+
+如果我们希望函数后面的参数可以更多，但又不单独对这些函数进行实现呢？
+
+让我们来看看可变形参，以下为其中一种声明。
+
+```C++
+int add(double a, bool b ,int c, ...);
+```
+
+这里表示一个至少有3个参数的函数，其中，第一参数是双精度整数a，第二参数是布尔型变量b，第三个参数及之后的所有参数都是整数。
+
+**可变形参是指数量可变，但类型必须与"..."之前声明的变量类型相同。**
+
+上课时的例程如下，用"-1"代表最后一个数：
+
+```C++
+#include <iostream>
+#include <cstdarg>							// va_list, va_arg, va_start, va_end is defined in <cstdarg>
+using namespace std;
+
+int	n_Add(int n_NumA, ...);					// In this code, we define that "-1" is the last argument
+
+int main()
+{
+	cout << n_Add(1, 2, 3, 4, 5, 6, 7, 8, 9, -1);
+	return 0;
+}
+
+int n_Add(int n_NumA, ...)
+{
+	int n_Sum	= n_NumA;
+	int	n_Read	= -1;
+	
+	va_list savelist;						// Define a savelist
+	va_start(savelist, n_NumA);				// Save the Parameters Read After "n_NumA"
+	
+	while(1)
+	{
+		n_Read	= va_arg(savelist, int);	// Read the First Unread Argument
+		
+		if(n_Read == -1)					// Check if We Read All
+		{
+			break;
+		}
+		
+		n_Sum	+= n_Read;					// Get it Added to Sum
+		
+	}
+	
+	va_end(savelist);						// End the Use of savelist and Release Memory
+	
+	return n_Sum;
+}
+```
+
+或者这样写，通过看前面"n_Count"传入的值以限制后续读入的总变量个数。
+
+```C++
+#include <iostream>
+#include <cstdarg>								// va_list, va_arg, va_start, va_end is defined in <cstdarg>
+using namespace std;
+
+int	n_Add(int n_Count, ...);
+
+int main()
+{
+	cout << n_Add(5, 1, 2, 3, 4, 5) << endl;
+	return 0;
+}
+
+int n_Add(int n_Count, ...)
+{
+	int n_Sum	= 0;
+	int	n_Read;
+	
+	va_list 	savelist;						// Define a savelist
+	va_start(savelist, n_Count);				// Save the Parameters Read After "n_Count"
+	
+	for (int i = 0; i < n_Count; i++)
+	{
+		n_Read	= va_arg(savelist, int);		// Read the First Unread Argument
+		n_Sum	+= n_Read;
+	}
+	
+	va_end(savelist);							// End the use of savelist and Release Memory
+	
+	return n_Sum;
+}
+```
+
+#### 默认形参
+
+在声明函数时，可以指定在不传入该参数时，该参数默认的值，例如：
+
+```C++
+int add(int a, int b, int param = 1);
+```
+
+则这个函数可以用如下方式调用：
+
+```C++
+add(200, 300);
+add(200, 300, 1);
+```
+
+这两种方式等效，可参见如下例程。
+
+```C++
+#include <iostream>
+using namespace std;
+
+double	d_Add(int n_NumA, int n_NumB, int n_Positive = 1, double d_Multiplier = 1.00);
+
+int main()
+{
+	cout << d_Add(200, 300);
+	return 0;
+}
+
+double	d_Add(int n_NumA, int n_NumB, int n_Positive, double d_Multiplier)
+{
+	return d_Multiplier * (double)(n_Positive * (n_NumA + n_NumB));
+}
+```
+
+<font color = red>注意若有一个形参被赋了默认值，那后续的所有参数都要被赋默认值，比如下面这一种声明是不合适的。</font>
+
+```C++
+double d_Add(int n_NumA, int n_NumB, int n_Positive = 1, double d_Multiplier);
+```
+
+对于同名函数，注意避免调用的二义性，例如这段调用，编译会报错，因为无法区分应当调用重载函数中的哪一个，请务必要避免。
+
+ ```C++
+ double	d_Add(int n_NumA, int n_NumB, int n_Positive = 1, double d_Multiplier = 1.00);
+ double	d_Add(int n_NumA, int n_NumB);
+ 
+ int main()
+ {
+     d_Add(200, 300);
+     return 0;
+ }
+ ```
 
 ### 例题选讲
 
