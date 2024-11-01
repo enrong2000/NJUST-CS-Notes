@@ -1,4 +1,4 @@
-# [Updated 2024-10-30] 程序设计基础（I）总结
+# [Updated 2024-11-01] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -43,6 +43,8 @@
 [2024-10-16] 作业 [Pg. 67 - 28题]
 
 [2024-10-18] 作业 [Pg. 89 - 11题]
+
+[2024-11-01] 作业 [Pg. 137 21题]
 
 ## 课前代码练习
 
@@ -1867,6 +1869,290 @@ double d_Add(int n_NumA, int n_NumB, int n_Positive = 1, double d_Multiplier);
      return 0;
  }
  ```
+
+#### 函数的嵌套
+
+不妨思考这样一个题目，输入两个数$N,K$。求$Sum=1^K+2^K+3^K+ ... +N^K$
+
+不妨把这个过程分为两个子问题。
+
+第一个子问题是求某个数的$K$次方，第二个子问题是将$1$到$N$的$K$次方加和得到$Sum$.
+
+那么不难写出这样的代码：
+
+```C++
+#include <iostream>
+using namespace std;
+
+long long	n_Pow(long long n_Num, long long n_K);
+long long	n_Sum(long long n_Range, long long n_K);
+
+int main()
+{
+	long long	n_Num;
+	long long	n_K;
+	long long	n_Ans;
+	
+	cin >> n_Num >> n_K;
+	
+	n_Ans	= n_Sum(n_Num, n_K);
+	
+	cout << n_Ans << endl;
+	
+	return 0;
+}
+
+long long	n_Pow(long long n_Num, long long n_K)
+{
+	long long	n_Return	= 1;
+	
+	for (int i = 0; i < n_K; i++)
+	{
+		n_Return	*= n_Num;
+	}
+	
+	return n_Return;
+}
+
+long long	n_Sum(long long n_Range, long long n_K)
+{
+	long long	n_Return	= 0;
+	
+	for (int i = 1; i <= n_Range; i++)
+	{
+		n_Return	+= n_Pow(i, n_K);
+	}
+	
+	return n_Return;
+}
+```
+
+这里我们就通过将任务分解成两个子任务，通过函数的嵌套完成了这个任务。
+
+事实上，在C++的标准库中，已经有类似的函数完成了这个功能，求$x^y$可以直接调用\<cmath\>头文件中的double pow(double, double)函数。所以当我们调用这样的函数时，可以再对代码进行简化，就像这个样子：
+
+```C++
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+long long	n_GetSum(long long n_Num, long long n_K);
+
+int main()
+{
+	long long	n_Num;
+	long long	n_K;
+	long long	n_Ans;
+	
+	cin >> n_Num >> n_K;
+	
+	n_Ans	= n_GetSum(n_Num, n_K);
+	
+	cout << n_Ans << endl;
+	
+	return 0;
+}
+
+long long	n_GetSum(long long n_Num, long long n_K)
+{
+	long long	n_Return	= 0;
+	
+	for (long long i = 1; i <= n_Num; i++)
+	{
+		n_Return	+= (long long)pow(i, n_K);
+	}
+	
+	return n_Return;
+}
+```
+
+#### 概念：地址
+
+在程序运行时，变量存在于内存中，则其必定有一个对应的内存地址。
+
+对于一个变量，其地址为所占的第一个字节的地址。
+
+我们可以通过这样的代码来输出一个整型变量的内存地址。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int	n_A;
+	int	n_B;
+	int	n_C;
+	
+	cout << &n_A << '\t' << &n_B << '\t' << &n_C;
+	
+	return 0;
+}
+```
+
+这段代码中"&"是对变量取地址的意思，所以运行这段代码得到的结果是(在不同PC上、不同时间上运行得到的结果并不唯一)：
+
+![image-20241101111424080](assets/image-20241101111424080.png)
+
+<center>输出三个整形变量分别存储的地址</center>
+
+对于函数而言，函数是一段逻辑的有序组合。
+
+在编译过程中，编译器先将源代码编译为.o文件，随后将.o文件编译为二进制指令集放在.exe等可执行文件中，而在运行可执行程序时，二进制指令集中的函数被加载到内存中，所以其实函数也是有地址的。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int	n_SampleFunc(int n_NumA, int n_NumB);
+
+int main()
+{
+	int	(*n_Pointer)(int, int);					
+    /* 
+    Define a Integer Pointer which points to a Function Whose Return Type is Integer
+    while Having 2 Integer Arguments.
+    */
+	n_Pointer	= n_SampleFunc;
+	cout << n_Pointer;
+	return 0;
+}
+
+int n_SampleFunc(int n_NumA, int n_NumB)
+{
+	return n_NumA + n_NumB;
+}
+```
+
+上面这段示例代码展示了函数地址的查询方式。
+
+#### 函数的递归
+
+递归是什么呢？
+
+> 递归的**定义**：**参见**递归。
+
+这个时候就有同学要问了：你这说了啥？
+
+仔细看我们所讲的这一句话，其实就能明白递归所想要表达的含义，也就是在函数中调用自己。
+
+这种调用方式适合用来做些什么事呢？
+
+比如$n$的阶乘，其可以写作如下形式的递推格式：
+
+$n!=(n-1)! * n$
+
+那么当我们需要求$n$的阶乘时，只需要知道$(n-1)!$，再将其值乘上$n$就可以了，那么我们就需要再知道$(n-1)!$
+
+欸？又是求阶乘，干的是同一件事！
+
+那对于$(n-1)!$我们又可以用上面的方法逐项递推下去，直到求到$1!$那很显然就是1，那我们求到了1，再向上逐渐将结果递交上去，得到我们最终的结果。
+
+写成代码的话就像这样：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int	n_Fact(int n_Num);
+
+int main()
+{
+	cout << n_Fact(5);
+	return 0;
+}
+
+int	n_Fact(int n_Num)
+{
+	return n_Num == 1 ? 1 : n_Fact(n_Num - 1) * n_Num;
+}
+```
+
+那么还有什么问题可以用递归解决呢？
+
+还记得裴波那契数列吗？
+
+$1, 1, 2, 3, 5, 8, ...$
+
+对于裴波那契数列，其有这样的递推公式：
+
+$a_1 = 1, a_2= 1,a_n=a_{n-1}+a_{n-2}$
+
+所以用递归方式求裴波那契数列第$n$项的代码可以像这样写（我们假设求的是第$20$项）：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int	n_Fibbonaci(int n_Num);
+
+int main()
+{
+	cout << n_Fibbonaci(20);
+	return 0;
+}
+
+int n_Fibbonaci(int n_Num)
+{
+	return n_Num <= 2 ? 1 : n_Fibbonaci(n_Num - 1) + n_Fibbonaci(n_Num - 2);
+}
+```
+
+#### 内联函数
+
+内联函数适用于函数内逻辑较简单的函数。
+
+在编译时，编译器会直接在主函数中内联函数的调用直接替换为函数体的内容，减少主函数中代码量，以提升代码可读性。
+
+例如：
+
+```C++
+#include <iostream>
+using namespace std;
+
+inline int add(int a, int b) {return a + b;}
+
+int main()
+{
+    cout << add(1, 2) << endl;
+    return 0;
+}
+```
+
+这段代码中，编译时，编译器会直接将\"add(1, 2)\"替换为\"1+2\"，而不会将内联函数编译到内存中。
+
+#### 作用域
+
+这里我们额外讲解一下变量的分类(后续会做更详细的补充，详细内容请查看发布合并后的主文档)：
+
+> 变量分为普通变量和静态变量，静态变量的关键字是\"static\"
+>
+> 普通变量的管理是放在为程序分配的内存栈中，而静态变量的管理是放在变程序分配的内存堆中。
+>
+> 栈和堆各是数据结构中的一种，在后续的数据结构课程中会讲到。
+
+我们用一段伪代码来理解作用域的问题:
+
+```C++
+// School
+int x;
+{
+    // Building
+    int y;
+    {
+        // Classroom
+        int z;
+        {
+            // Desk
+            int w;
+        }
+    }
+}
+```
+
+把最外侧的区域比作是一整个学校，我们在学校里可以找到$x$同学，但因为教学楼是对里面锁着的，$y$同学没法从教学楼里出来找$x$同学玩，但$x$可以进入教学楼找$y$，同理，因为教室是对里面锁着的，$z$没有办法从教室出来找$y$，更没法从教学楼出来找到外面的$x$，但是$x$和$y$都可以进到教室里找到$z$，以此类推，桌子中的宠物$w$不能从锁着的桌子中出来找到$x,y,z$，但$x,y,z$能打开桌子看到$w$并和它互动。
+
+这就是为什么没法在//Building区域对$z$或$w$赋值，但可以给$x$赋值的原因。
 
 ### 例题选讲
 
