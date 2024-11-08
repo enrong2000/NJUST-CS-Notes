@@ -1,4 +1,4 @@
-# [Updated 2024-11-01] 程序设计基础（I）总结
+# [Updated 2024-11-08] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -2154,6 +2154,445 @@ int x;
 
 这就是为什么没法在//Building区域对$z$或$w$赋值，但可以给$x$赋值的原因。
 
+#### 值传递与对象传递（引用）
+
+我们来看一段代码，其实现的是交换两个数的值。
+
+```C++
+#include <iostream>
+using namespace std;
+
+void swap(int a, int b);
+
+int	main()
+{
+	int	a = 10;
+	int b = 20;
+	
+	swap(a, b);
+	
+	cout << a << ' ' << b << endl;
+	
+	return 0;
+}
+
+
+void swap(int a, int b)
+{
+	int c	= a;
+	a		= b;
+	b		= c;
+	return;
+}
+```
+
+运行的结果是：
+
+```
+10 20
+```
+
+在swap函数里我们不是已经交换a和b了吗？
+
+> 这里就涉及到一个问题了，我们通过参数传入函数的只是这两个变量的**值**，而在函数运行的过程中只是将传入的有这两个值的变量交换了**值**，而并没有改变主函数中变量的**值**，因此主函数中a和b的值从头到尾就没有被改变，所以才会出现没有交换值的结果。
+
+那如果我们要让这个函数实现交换的功能呢？
+
+实际上，我们只需要进行一点小小的修改，就可以做到这个功能，看看下面这段代码与上面的区别：
+
+```C++
+#include <iostream>
+using namespace std;
+
+void swap(int &a, int &b);
+
+int	main()
+{
+	int	a = 2;
+	int b = 3;
+	
+	swap(a, b);
+	
+	cout << a << ' ' << b << endl;
+	
+	return 0;
+}
+
+
+void swap(int &a, int &b)
+{
+	int c	= a;
+	a		= b;
+	b		= c;
+	return;
+}
+```
+
+在这段代码中，我们使用了“引用”特性，即swap中的两个参数传入的是两个**变量对象**，而并非这两个变量的**值**，对传入的两个**变量对象**进行操作，也就相当于是对主函数中这两个**变量对象**进行操作，就可以完成交换其值的操作。
+
+运行这段代码得到的结果就是正确的：
+
+```
+3 2
+```
+
+#### 外部变量(extern关键字)
+
+在多文件工程中，我们使用extern关键字标识某变量不仅在其所属的文件中可以使用，而且还可以在其他文件中使用，在项目中，我们来看一看这样的代码。
+
+```C++
+/*
+Project Name	: Test
+File Name		: main.cpp
+*/
+
+int	n_Test	= 1;
+void v_Function1();
+void v_Function2();
+
+int main()
+{
+    v_Function1();
+    v_Function2();
+    return 0;
+}
+```
+
+```C++
+/*
+Project Name	: Test
+File Name		: Function1.cpp
+*/
+#include <iostream>
+using namespace std;
+
+void v_Function1()
+{
+    extern int n_Test;
+    cout << "Function 1: " << ++n_Test << endl;
+    return;
+}
+```
+
+```C++
+/*
+Project Name	: Test
+File Name		: Function2.cpp
+*/
+#include <iostream>
+using namespace std;
+
+void v_Function2()
+{
+    extern int n_Test;
+    cout << "Function 2: " << ++n_Test << endl;
+}
+```
+
+在项目中我们可以创建多个cpp文件，只有一个main入口，在main.cpp中声明函数，用其他cpp文件对这些函数进行实现。就像图中这样：
+
+![image-20241106111407193](assets\image-20241106111407193.png)
+
+##### 工程管理
+
+一般来说，对于一个多文件工程，我们需要将函数的声明放到“头文件”中，这里头文件充当了清单的作用，也就是列出这个工程中我单独声明的函数的列表，并且对于这个头文件，我们创建一个同名的cpp文件对函数进行实现，这样当我们在创建main.cpp作为我们的主文件时，我们就只需要包含头文件，然后直接调用函数就可以实现这样的功能，并且main.cpp中我们可以清晰地看到程序的逻辑，非常简单。
+
+对于刚才的交换函数，我们可以用这样的方式进行工程管理，如下图所示，这分别是myfunction.h文件中对函数的声明，以及myfunction.cpp文件中对这个函数的实现。
+
+![image-20241106113201193](assets\image-20241106113201193.png)
+
+这里解释一下头文件开头的：
+
+```C++
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+// Do something
+#endif
+```
+
+在程序设计中，为了防止我们重复包含头文件，在书写头文件时，这段代码表示的意思是：
+
+> 当"\_\_MYFUNCTION_H\_\_"未被定义，则定义"\_\_MYFUNCTION_H\_\_"并在#endif之前进行函数声明，否则直接跳到#endif处，这样当一个头文件被多次包含，这些函数也只会被声明一次，以防出现重复声明的问题。
+
+而main.cpp中我们将myfunction.h包含进来之后进行主函数的编写。
+
+![image-20241106113336725](assets\image-20241106113336725.png)
+
+这样我们所看到的这段主函数代码就非常清爽了。
+
+#### 静态成员变量(static关键字)
+
+在刚才的swap函数中，如果我们想要统计swap的执行次数，可以在swap函数中定义一个静态成员变量count，我们可以看一看这个程序：
+
+```C++
+#include <iostream>
+using namespace std;
+
+void swap(int &a, int &b);
+
+int main()
+{
+    int x = 10;
+    int y = 20;
+    while(x > 0)
+    {
+        swap(x, y);
+        x--;
+    }
+    return 0;
+}
+
+void swap(int &a, int &b)
+{
+    int count	= 0;
+    int c		= a;
+    a			= b;
+    b			= c;
+    count++;
+    cout << count << endl;
+}
+```
+
+我们运行这段代码，看看得到了什么结果？
+
+```C++
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+```
+
+为什么全是1？
+
+因为每次运行swap函数时，都会重新申请一个count并初始化其值为0，运行完之后对其进行增加操作，所以每次都只会输出1。
+
+当我们对count加上了static限定其为静态成员变量，当这个函数被反复调用时，该变量只会申请一次内存，像下面这样。
+
+```C++
+#include <iostream>
+using namespace std;
+
+void swap(int &a, int &b);
+
+int main()
+{
+    int x = 10;
+    int y = 20;
+    while(x > 0)
+    {
+        swap(x, y);
+        x--;
+    }
+    return 0;
+}
+
+void swap(int &a, int &b)
+{
+    static int count	= 0;
+    int c				= a;
+    a					= b;
+    b					= c;
+    count++;
+    cout << count << endl;
+}
+```
+
+这样的运行结果就是正确的。
+
+```
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+```
+
+#### 预编译
+
+为编译器进行预处理的过程。
+
+##### 包含指令(#include)
+
+这种指令其实同学们已经很熟悉了，其主要作用是将头文件中函数声明相关的内容放进文件中，以使主函数中对函数的调用能正常执行，详细可以参照之前我们讲解"extern"关键字时的项目。
+
+包含指令既可以使用尖括号，也可以使用双引号，尖括号表示先在C和C++的库目录中寻找，再在工作目录中寻找该头文件，引号则恰好相反。
+
+##### 其他宏指令
+
+###### 文本替换(#define)
+
+格式：
+
+```C++
+#define NAME DESCRIPTION
+```
+
+这里NAME字段不允许有空格，预编译时会把NAME替换为后面的DESCRIPTION的内容。
+
+这样做的目的是为了让代码变得更加清晰可读。不过也不要乱用这样的指令，比如接下来的这段代码，如果编译会提示内存耗尽，无法正常完成编译。
+
+<font color = red>不要将这段代码用在实际的项目中！</font>
+
+```C++
+// Don't do this in real project!
+#define A B B
+#define B C C
+#define C D D
+#define D E E
+#define E F F
+#define F G G
+#define G H H
+#define H I I
+#define I J J
+#define J K K
+#define K L L
+#define L M M
+#define M N N
+#define N O O
+#define O P P
+#define P Q Q
+#define Q R R
+#define R S S
+#define S T T
+#define T U U
+#define U V V
+#define V W W
+#define W X X
+#define X Y Y
+#define Y Z Z
+#define Z A A
+
+int main()
+{
+	int A;
+	return 0;
+}
+```
+
+这里有很多文本替换指令，其作用是将找到的"A"替换为"B B",将找到的"B"替换为"C C"...再将找到的"Z"替换为"A A"。
+
+当编译器在找到A时，就会将其无限替换，进入死循环，直到内存溢出，停止编译，编译是不成功的。
+
+让我们来看一段正确使用#define指令的代码：
+
+```C++
+#include <iostream>
+#define STU_NUM 30
+using namespace std;
+
+int main()
+{
+    for (int i = 0; i < STU_NUM; i++)
+    {
+        cout << i << ' ';
+    }
+    
+    cout << endl;
+    
+    for (int j = 0; j < STU_NUM; j++)
+    {
+        cout << j << ' ';
+    }
+    return 0;
+}
+```
+
+这里我们将STU_NUM用文本替换指令统一替换为30，非常清爽，同时我们通过这个宏定义知道这个常数是表示学生数量的。
+
+带宏定义的编译，示例：
+
+```C++
+#include <iostream>
+#define X86
+using namespace std;
+
+int main()
+{
+#ifdef X86
+    cout << "x86" << endl;
+#elif defined ARM64
+    cout << "ARM64" << endl;
+#else
+    cout << "unknown" << endl;
+#endif
+#undef X86
+    return 0;
+}
+```
+
+这里只会输出：
+
+```
+x86
+```
+
+而其他代码不会被编译。
+
+###### 带参宏
+
+直接以代码示例：
+
+```c++
+#include <iostream>
+#define ADD(a,b) a+b
+using namespace std;
+
+int main()
+{
+    cout << ADD(2,3)*ADD(2,3) << endl;
+    return 0;
+}
+```
+
+运行结果为：
+
+```
+11
+```
+
+运行过程相当于：
+
+```
+2+3*2+3
+```
+
+所以为了防止这样的情况出现，我们最好在带参宏后加上括号*(括号真的不要钱)*
+
+```C++
+#define ADD(a,b) (a+b)
+```
+
 ### 例题选讲
 
 #### [Pg. 85] 例4.11
@@ -2552,5 +2991,398 @@ int main()
 		pin		+= newpin;
 	}
 	return 0;
+}
+```
+
+#### 习题5_21_5
+
+>  本题是在MOOC上的一道题，其对时间复杂度有要求，如果按照上课的写法提交，会得到运行时间超时的结果，请注意。
+
+**时间限制: 500ms**
+
+**[题目描述]**
+
+设计一个程序，对于输入的任意一个正整数$x$，分解质因数，并且按从小到大的次序输出所有的质因数。
+
+**[输入描述]**
+
+一个正整数$x$
+
+**[输出描述]**
+
+按$x=x_1*x_2*x_3*\dots*x_n$的格式输出
+
+**[样例输入]**
+
+```
+6
+```
+
+**[样例输出]**
+
+```
+6=2*3
+```
+
+---
+
+上课时的例程代码:
+
+```C++
+// File: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+bool is_Prime(int n);
+void show_prime_factors(int n);
+
+#endif
+```
+
+```C++
+// File: MyFunction.cpp
+#include "MyFunction.h"
+#include <cmath>
+#include <iostream>
+using namespace std;
+
+bool is_Prime(int n)
+{
+    if (n <= 1)
+    {
+        return false;
+    }
+    
+    if (n == 2 || n == 3 || n == 5 || n == 7)
+    {
+        return true;
+    }
+    else
+    {
+        int i;
+        int tmp = sqrt(n) + 1;
+        for (i = 2; i <= tmp; i++)
+        {
+            if (!(n % i))
+            {
+                return false;
+            }
+        }
+        if (i > tmp)
+        {
+            return true;
+        }
+    }
+}
+
+void show_prime_factors(int x)
+{
+    cout << x << '=';
+    unsigned int tmp = x / 2 + 1;
+    bool isfirst = false;
+    
+    for (int i = 2; i <= tmp; i++)
+    {
+        if (!(is_Prime(i)))
+        {
+            continue;
+        }
+        while(1)
+        {
+            if (x % i)
+            {
+                break;
+            }
+            if (isfirst == false)
+            {
+                cout << i;
+                isfirst = true;
+            }
+            else
+            {
+                cout << '*' << i;
+            }
+            x /= i;
+        }
+    }
+}
+```
+
+```C++
+//File: main.cpp
+#include <iostream>
+#include "MyFunction.h"
+using namespace std;
+
+int main()
+{
+    unsigned int x = 0;
+    cin >> x;
+    
+    show_prime_factors(x);
+    
+    return 0;
+}
+```
+
+然而这个算法在遇到超过$500000000$的素数(甚至更小)时，运行时间会超过$500$ms的限制，因为程序在运行的过程中，1秒运行的次数约为$1000000000$(即$10^9$)次，这样反复运行，可能会导致超时，思考应该如何解决这个问题。
+
+不如换个角度想一想，如果这个数一开始就是质数，那我们用一个循环把它以下的所有数全判一遍是不是质数肯定非常浪费时间。
+
+那么，我们要怎么改呢？
+
+在MOOC上的这道题中，有这样的一句提示：
+
+创建```void FacPrimely(int n)```函数，如果已经找到$n$的一个质因数$k$，那就把这个质因数$k$输出，并再去找$n/k$的质因数，也就是使用递归的方式完成这道题。
+
+不妨看看这样的代码：
+
+```C++
+#include <iostream>
+using namespace std;
+
+void FacPrimely(int n);
+
+int main()
+{
+    int n;
+    
+    cin >> n;
+    cout << n << '=';
+    
+    FacPrimely(n);
+    return 0;
+}
+
+void FacPrimely(int n)
+{
+    /* If The Number input is 1, that means all factors of 
+    this number has been found, thus we return directly to
+    show the process is all done.*/
+    if (n == 1)
+    {
+        return;
+    }
+    
+    /* If The Number is Even, it's definitely dividable by 2,
+    So we divide the Number Repeatedly until it cannot be
+    divided by 2, resulting in a odd number.*/
+    
+    if (!(n % 2))							  										
+    {
+    	while (!(n % 2))
+    	{
+    	    n /= 2;
+    	    cout << 2;
+            
+            if (n != 2)
+            {
+                cout << '*';
+            }
+    	}
+        FacPrimely(n);
+        return;
+    }
+    
+    /* If The Program runs here, n is an odd number for sure,
+    all we have to do here is to just check if it's dividable
+    by some smaller odd number. And if there is none, it's a
+    prime number, we output itself.
+    */
+    
+    for (int i = 3; i <= n / i; i += 2)
+    {
+        if (!(n % i))
+        {
+            cout << i << '*';
+            FacPrimely(n / i);
+            return;
+        }
+    }
+    
+    cout << n;
+    return;
+}
+```
+
+这里展示了一份使用递归方式完成这道题，且不会超时的代码。
+
+首先我们检查传入的数是否是1，如果是1，说明我们的质因数分解已经结束，直接返回。
+
+当传入的数不是1时，我们检查这个数是否是偶数，如果是偶数，那么其一定存在质因数2，那我们就反复除以2，直到它不再是偶数为止，将不再是偶数的因子传到下一次检查中。
+
+当传入的数$n$既不是1，也不是偶数，那一定就是奇数，对于奇数我们只需要从$3$到$\sqrt{n}$对其检查其是否有**奇数因子**既可。
+
+**注意这里的写法，思考为什么这里是**```i <= n / i```**而不是**```i * i <= n```**呢？**
+
+> 思考：我们**为什么不去检查这个奇数因子是否是质数**？
+>
+> 因为我们的检查是从小到大依次检查，如果一个奇数不是质数，那它一定已经被之前检查到的更小的奇数因子分解掉了，所以我们检查到的奇数因子一定是质数。如果检查到的奇数因子能整除被检查的数，那它就是我们要找的质因数。
+
+最后，如果我们从$3$到$\sqrt{n}$检查了所有的奇数因子都没法整数$n$，那么很显然，$n$是一个质数，那输出其本身即可，分解完毕。
+
+如果不是因为题目中限定了```FacPrimely(int n)```只有一个参数，这份代码在运行效率上还可以再做提升，留作思考。
+
+---
+
+#### 习题5_21_6
+
+**[题目描述]**
+
+编写一个函数```int getrev(int n)```，对一个正整数$n$返回其反序数。反序数就是各个位置的数颠倒过来组成的正整数，例如$123$的反序数是$321$，$120$的反序数是$21$。进一步，如果一正整数$n$的反序数就是它自己，如$2$,$33$,$121$，该数$n$就是回文数。编写一个函数```bool ishw(int n)```判断$n$是否为回文数。
+
+有一个数学猜想：对任一正整数$n$,且$n$不是回文数，先得到其反序数$n'$，再与原数$n$相加，即```n+=n'```,得到一个新的数。如此重复若干次，$n$就是一个回文数。
+
+编写程序验证是否正确，并输出过程及步数。
+
+**[输入描述]**
+
+一个正整数$x$
+
+**[输出描述]**
+
+按$n_2=n_1+n_1'$的格式输出，并输出总步数。
+
+**[样例输入]**
+
+```
+12
+```
+
+**[样例输出]**
+
+```
+33=12+21
+1
+```
+
+---
+
+这是上课时的例程代码：
+
+我们以工程的形式呈现这个项目，这里我们新引进一个内容，叫```typedef```,即将一种变量类型进行重命名，比如下面代码中的```typedef char int_8;```即使用```int_8```来替代```char```作为类型名称，这样的好处是我们可以通过自己的方式知道这个变量的位数(换言之，其所占内存的大小)来更好地判断越界问题。
+
+```C++
+// File: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+typedef char 					int_8  ;
+typedef short					int_16 ;
+typedef int						int_32 ;
+typedef unsigned char			uint_8 ;
+typedef unsigned short			uint_16;
+typedef unsigned int			uint_32;
+
+int getrev(uint_32 n);
+bool ishw(uint_32 n);
+void provehw(uint_32 n);
+#endif
+```
+
+```C++
+// File: MyFunction.cpp
+#include "MyFunction.h"
+#include <iostream>
+using namespace std;
+
+int getrev(uint_32 n)
+{
+    uint_32 inver = 0;
+    
+    while(n)
+    {
+        inver = inver * 10 + n % 10;
+        n /= 10;
+    }
+    
+    return inver;
+}
+
+bool ishw(uint_32 n)
+{
+    return n == getrev(n);
+}
+
+void provehw(uint_32 n)
+{
+    uint_32 tmp = n;
+    uint_32 count = 0;
+    
+    while(1)
+    {
+        if(ishw(tmp))
+        {
+            break;
+        }
+        uint_32 inver = getrev(tmp);
+        cout << tmp + inver << '=' << tmp << " " << inver << endl;
+        tmp += inver;
+        count++;
+    }
+    cout << count << endl;
+}
+```
+
+```C++
+// File: main.cpp
+#include "MyFunction.h"
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    uint_32 x;
+    cin >> x;
+    provehw(x);
+    return 0;
+}
+```
+
+用单文件项目的写法如下：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int getrev(int n);
+bool ishw(int n);
+
+int main()
+{
+	int n;
+	int	tmp;
+	int	cnt	= 0;
+	
+	cin >> n;
+	
+	while(!ishw(n))
+	{
+		tmp = getrev(n);
+		cout << n + tmp << '=' << n << '+' << tmp << endl;
+		n	+= tmp;
+		cnt++;
+	}
+	
+	cout << cnt << endl;
+	return 0;
+}
+
+int getrev(int n)
+{
+	int ret	= 0;
+	
+	while(n)
+	{
+		ret = ret * 10 + n % 10;
+		n /= 10;
+	}
+	
+	return ret;
+}
+
+bool ishw(int n)
+{
+	return n == getrev(n);
 }
 ```
