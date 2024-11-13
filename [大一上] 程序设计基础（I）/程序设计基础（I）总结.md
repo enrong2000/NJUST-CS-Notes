@@ -1,4 +1,4 @@
-# [Updated 2024-11-08] 程序设计基础（I）总结
+# [Updated 2024-11-13] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -641,6 +641,322 @@ int n_SumSeg(int n_Left, int n_Right)
  	return sum;
  }
  ```
+
+### 2024-11-13 质因数分解
+
+**[题目描述]**
+
+输入一个正整数$n$，从小到大输出$n$的所有质因数。
+
+**[输入描述]**
+
+一个正整数$n$
+
+**[输出描述]**
+
+以空格分隔开，以$n=x_1*x_2*\cdots*x_n$的格式输出该整数的所有质因数
+
+**[样例输入]**
+
+```
+12
+```
+
+**[样例输出]**
+
+```
+12=2*2*3
+```
+
+---
+
+这道题目在习题课上讲过，注意我们之前所写的```void FacPrimely(int n)```函数的具体实现。
+
+```C++
+#include <iostream>
+using namespace std;
+
+void FacPrimely(int n);
+
+int main()
+{
+	int n;
+	
+	cin >> n;
+	cout << "n=";
+	
+	FacPrimely(n);
+	return 0;
+}
+
+void FacPrimely(int n)
+{
+	if (n == 1)
+	{
+		return;
+	}
+	
+	if (!(n % 2))
+	{
+		while (!(n % 2))
+		{
+			n /= 2;
+			cout << 2;
+			
+			if (n != 2)
+			{
+				cout << '*';
+			}
+		}
+		
+		FacPrimely(n);
+		return;
+	}
+	
+	for (int i = 3; i <= n / i; i += 2)
+	{
+		if (!(n % i))
+		{
+			cout << i << '*';
+			FacPrimely(n / i);
+			return;
+		}
+	}
+	
+	cout << n;
+	return;
+}
+```
+
+### 2024-11-13 进制转换
+
+**[题目描述]**
+
+输入一个十进制正整数$n$，分别输出其二进制、八进制和十六进制的表示
+
+**[输入格式]**
+
+一个十进制正整数$n$
+
+**[输出格式]**
+
+该十进制整数的二进制、八进制和十六进制，每个表示之间用一个制表符```\t```隔开
+
+**[样例输入]**
+
+```
+18
+```
+
+**[样例输出]**
+
+```
+10010	\22	0x12
+```
+
+---
+
+这道题目也是之前讲过的内容，通过使用函数进行位运算实现，如果可以的话还可以使用一个函数对它的实现进行简化。
+
+先看未简化的代码。
+
+```C++
+#include <iostream>
+using namespace std;
+
+void v_ToBin(int n_Num);
+void v_ToEight(int n_Num);
+void v_ToHex(int n_Num);
+
+int main()
+{
+    int n_Num;
+	cin >> n_Num;
+	
+	v_ToBin(n_Num);
+	v_ToEight(n_Num);
+	v_ToHex(n_Num);
+	
+	return 0;
+}
+
+void v_ToBin(int n_Num)
+{
+	int n_Flag	= 0;
+	int n_Pos	= 30;
+	int	n_Check;
+	
+	while (n_Pos >= 0)
+	{
+		n_Check	= (n_Num >> n_Pos) & 1;
+		
+		n_Pos--;
+		
+		if (n_Check)
+		{
+			n_Flag	= 1;
+		}
+		
+		if (!n_Flag && !n_Check)
+		{
+			continue;
+		}
+		
+		
+		cout << n_Check;
+	}
+	
+	cout << '\t';
+	
+	return;
+}
+
+void v_ToEight(int n_Num)
+{
+	int n_Flag	= 0;
+	int n_Pos	= 30;
+	int n_Check;
+	
+	cout << '\\';
+	
+	while (n_Pos >= 0)
+	{
+		n_Check	= (n_Num >> n_Pos) & 7;
+		
+		n_Pos	-= 3;
+		
+		if (n_Check)
+		{
+			n_Flag	= 1;
+		}
+		
+		if (!n_Check && !n_Flag)
+		{
+			continue;
+		}
+		
+		cout << n_Check;
+	}
+	
+	cout << '\t';
+	return;
+}
+
+void v_ToHex(int n_Num)
+{
+	int n_Flag	= 0;
+	int	n_Pos	= 28;
+	int	n_Check;
+	
+	cout << "0x";
+	
+	while (n_Pos >= 0)
+	{
+		n_Check	= (n_Num >> n_Pos) & 15;
+		
+		n_Pos	-= 4;
+		
+		if (n_Check)
+		{
+			n_Flag	= 1;
+		}
+		
+		if (!n_Check && !n_Flag)
+		{
+			continue;
+		}
+		
+		if (n_Check >= 10)
+		{
+			cout << (char)(n_Check - 10 + 'a');
+		}
+		else
+		{
+			cout << n_Check;
+		}
+	}
+	
+	cout << '\t';
+}
+```
+
+我们发现这样的进制转换其实是同一个轮子反复使用，那其实我们再在参数列表中加一项就可以让代码得到简化。
+
+```C++
+#include <iostream>
+using namespace std;
+
+void Transfer(int n_Num, int n_Type);
+
+int main()
+{
+	int n_Num;
+	
+	cin >> n_Num;
+	
+	Transfer(n_Num, 2);
+	Transfer(n_Num, 8);
+	Transfer(n_Num, 16);
+	
+	return 0;
+}
+
+void Transfer(int n_Num, int n_Type)
+{
+	int n_Flag	= 0;
+	int	n_Pos;
+	int	n_Gap;
+	int	n_Check;
+	
+	switch(n_Type)
+	{
+		case 2:
+			n_Pos	= 30;
+			n_Gap	= 1;
+			break;
+		case 8:
+			n_Pos	= 30;
+			n_Gap	= 3;
+			cout << '\\';
+			break;
+		case 16:
+			n_Pos	= 28;
+			n_Gap	= 4;
+			cout << "0x";
+			break;
+		default:
+			return;
+	}
+	
+	while (n_Pos >= 0)
+	{
+		n_Check	= (n_Num >> n_Pos) & (n_Type - 1);
+		
+		n_Pos	-= n_Gap;
+		
+		if (n_Check)
+		{
+			n_Flag	= 1;
+		}
+		
+		if (!n_Check && !n_Flag)
+		{
+			continue;
+		}
+		
+		if (n_Check >= 10)
+		{
+			cout << (char)(n_Check - 10 + 'a');
+		}
+		else
+		{
+			cout << n_Check;
+		}
+	}
+	
+	cout << '\t';
+}
+```
 
 ## 上课内容总结
 
@@ -2438,19 +2754,19 @@ void swap(int &a, int &b)
 20
 ```
 
-#### 预编译
+### 预编译
 
 为编译器进行预处理的过程。
 
-##### 包含指令(#include)
+#### 包含指令(#include)
 
 这种指令其实同学们已经很熟悉了，其主要作用是将头文件中函数声明相关的内容放进文件中，以使主函数中对函数的调用能正常执行，详细可以参照之前我们讲解"extern"关键字时的项目。
 
 包含指令既可以使用尖括号，也可以使用双引号，尖括号表示先在C和C++的库目录中寻找，再在工作目录中寻找该头文件，引号则恰好相反。
 
-##### 其他宏指令
+#### 其他宏指令
 
-###### 文本替换(#define)
+##### 文本替换(#define)
 
 格式：
 
@@ -2559,7 +2875,7 @@ x86
 
 而其他代码不会被编译。
 
-###### 带参宏
+##### 带参宏
 
 直接以代码示例：
 
@@ -2591,6 +2907,154 @@ int main()
 
 ```C++
 #define ADD(a,b) (a+b)
+```
+
+### 数组
+
+为什么我们会需要使用数组呢？
+
+我们回想一下之前进制转换的问题，如果我们不使用移位运算，直接用短除法不断得到该进制数的末位的值，将得到末位的值输出出来的话，与实际的数值恰好是反向的，但倘若我们直接用一个数据结构将这一串数存下来，并在需要它的时候将其按正确的顺序输出，那就简单多了。
+
+所以说，我们引进数组：
+
+```C++
+int a[5];	// Define an Array Containing 5 integers and its name "a"
+```
+
+数字的定义格式：
+
+```C++
+Type Array_Name[Array_Size];
+```
+
+需要注意的是，在实际代码中,```Array_Name```指的是该数组在内存中占用的首个地址。
+
+而数组中具体第$k$项所对应的内存地址就是首地址向后偏移```k * sizeof(Type)```个字节。
+
+访问数组时就直接使用```a[i]```就能访问数组```a```中的第```i```个元素。
+
+<font color = red>数组中总元素数目为Size时，i能取到的最大值为Size - 1，因为数组的下标是从0开始的，而不是从1开始。</font>
+
+数组元素的地址的表示可以通过如下两个为真的表达式进行理解。
+
+```C++
+&a[0]	== a;
+&a[i]	== a + sizeof(int) * i;
+```
+
+数组元素的赋值方式：
+
+```C++
+int a[5];
+a[2]	= 10;
+```
+
+数组元素的初始化方式：
+
+```C++
+int	a[5]	= {0, 1, 2, 3, 4};		// Correct
+int a[5]	= {0, 1, 2, 3, 4, 5};	// Illegal
+int	a[5]	= {0, 1, 2};			// Correct
+int a[5]	= {0, 1, 2, 0, 0};		// Correct, Same with the statement above
+int	a[5]	= {0};					// Correct, All Elements are Set to 0
+int a[5]	= 0;					// Correct, Same with the statement above
+```
+
+用循环方式：
+
+```C++
+int main()
+{
+    int a[5];
+    
+    for (int i = 0; i < 5; i++)
+    {
+        a[i]	= 0;
+    }
+    
+    return 0;
+}
+```
+
+用更暴力的内存赋值方式：
+
+```C++
+#include <cstring>					// To Use Function memset()
+
+int main()
+{
+    int a[5];
+    
+    memset(a, 0, sizeof(a));
+    memset(a, 0, sizeof(int) * 5);	// Both Statements have the same function.
+    
+    return 0;
+}
+```
+
+需要注意的是，内存赋值是直接对所有对应地址的**字节**赋同一个值。
+
+如果没有在定义时指定数组的大小，但进行了初始化，数组的长度默认为后续已被初始化的个数。例如下面两种定义是等价的。
+
+```C++
+int a[]		= {0, 1, 2, 3, 4};
+int a[5]	= {0, 1, 2, 3, 4};
+```
+
+虽然可以用变量指定数组大小，但安全起见，我们一般会使用常量填入。
+
+```C++
+// First Kind of Declaration
+int a[5];
+
+// Second Kind of Declaration
+const int N	= 5;
+int b[N];
+
+// Third Kind of Declaration
+#define ARRY_LEN 5
+int c[ARRY_LEN];
+```
+
+上述3种定义都是合理且安全的，但请<font color = red>避免使用下面这一种定义方式</font>，使用变量定义数组长度时，会出现很多不可控的情况，比如内存未正常回收的问题。
+
+```C++
+// Fourth Kind of Declaration
+/* DO NOT USE THIS KIND OF DECLARATION
+OR IT WILL CAUSE MEMORY LEAK, MAKING THINGS OUT OF CONTROL */
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int n;
+	cin >> n;
+	int a[n];
+	
+	n = 0;
+	
+	return 0;
+}
+```
+
+如果一定要使用这种方式，请参照如下代码，以保证内存能被正常回收。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+    const int m = n;
+    
+    int a[m];					// m is const, so it's safe when releasing memory
+    
+    n = 0;
+    
+    return 0;
+}
 ```
 
 ### 例题选讲
@@ -2659,6 +3123,39 @@ int main()
 ```
 
 *(暴力枚举答案)*
+
+#### [Pg. 143] 例6.2
+
+多项式的计算。
+
+给定多项式$y=5x^5-3.2x^3+2x^2+6.2x-8$，输入$x$，求$y$。
+
+考虑$y=5x^5+0\times x^4-3.2x^3+2x^2+6.2x-8x^0 = ((((5x + 0)x-3.2)x+2)x+6.2)x-8$
+
+逐层向外进行展开即可得到答案。
+
+```C++
+#include <iostream>
+using namespace std;
+
+double	Multiplier[6] = {5, 0, -3.2, 2, 6.2, -8};
+double	Result	= Multiplier[0];
+double	Input;
+
+int main()
+{
+    cin >> Input;
+    
+    for (int i = 0; i < 5; i++)
+    {
+        Result	= Result * Input + Multiplier[i + 1];
+    }
+    
+    cout << Result;
+    
+    return 0;
+}
+```
 
 ### 习题课
 
