@@ -958,6 +958,181 @@ void Transfer(int n_Num, int n_Type)
 }
 ```
 
+### 2024-11-15 数组统计
+
+**[题目描述]**
+
+创建一个最大长度为100的数组，对每个元素赋随机值，统计这个数组里的奇数个数，及奇数的平均值。
+
+注：在C++，随机值可以使用```<cstdlib>```头文件中的```rand()```函数。一般为了保证随机，还需要使用```<ctime>```头文件中的```time(NULL)```作为随机数种子。
+
+下面为一段生成一个随机数并输出的示例代码：
+
+```C++
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    srand(time(NULL));
+    cout << rand() << endl;
+    return 0;
+}
+```
+
+**[输入格式]**
+
+无
+
+**[输出格式]**
+
+无特定要求
+
+---
+
+那么我们可以写出这样的代码。
+
+```C++
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+const int SIZE	= 100;
+
+int main()
+{
+	int		n_Array[SIZE];
+	double	d_Average	= 0;
+	int		n_Even		= 0;
+	int		n_Odd		= 0;
+	
+	srand(time(NULL));							
+	/* ^ This is to Make Sure that it is REALLY random.
+    Otherwise, each time you run the program, it will
+    Output the EXACT SAME RESULT. */
+    
+	for (int i = 0; i < SIZE; i++)
+	{
+		n_Array[i]	= rand();
+		
+		cout << "Element #" << i << ": " << n_Array[i] << endl;
+		
+		if(n_Array[i] % 2)
+		{
+			n_Odd++;
+		}
+		else
+		{
+			n_Even++;
+		}
+		
+		d_Average	+= double(n_Array[i]);
+	}
+	
+	cout << "Total Odd Number: " << n_Odd << endl;
+	cout << "Total Even Number: " << n_Even << endl;
+	cout << "Average Of All Odd Number: " << d_Average / (double)n_Odd << endl;
+	
+	return 0;
+}
+```
+
+注意留了注释的那一行代码，如果我们不写这一段代码，那么每次运行这段程序的结果都是完全一样的，没有达到随机生成数的目的。
+
+老师的例程如下：
+
+```C++
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
+typedef unsigned int 	uint_32;
+
+int main()
+{
+    uint_32 a[100]	= {0};
+    
+    for (uint_32 i = 0; i < 100; i++)
+    {
+        a[i]	= rand();
+    }
+    
+    // Show Array
+    for (uint_32 i = 0; i < 100; i++)
+    {
+        cout << a[i] << '\t';
+    }
+    
+    cout << endl;
+
+    uint_32 Cnt	= 0;
+    uint_32 Sum	= 0;
+    
+    for (uint_32 i = 0; i < 100; i++)
+    {
+        if (a[i] % 2)
+        {
+            Cnt++;
+            Sum	+= a[i];
+        }
+    }
+    
+    cout << count << endl;
+    cout << (double)Sum / (double)Cnt << endl;
+    
+    return 0;
+}
+```
+
+如果我们需要限定随机数的范围在0~100之间，只需要让```rand()```对101取模即可，增加宏定义```#define ARRAY_LEN 100```后的代码如下。
+
+```C++
+#include <iostream>
+#include <cstdlib>
+#define ARRAY_LEN 100
+using namespace std;
+
+typedef unsigned int 	uint_32;
+
+int main()
+{
+    uint_32 a[ARRAY_LEN]	= {0};
+    
+    for (uint_32 i = 0; i < ARRAY_LEN; i++)
+    {
+        a[i]	= rand() % 101;
+    }
+    
+    // Show Array
+    for (uint_32 i = 0; i < ARRAY_LEN; i++)
+    {
+        cout << a[i] << '\t';
+    }
+    
+    cout << endl;
+
+    uint_32 Cnt	= 0;
+    uint_32 Sum	= 0;
+    
+    for (uint_32 i = 0; i < ARRAY_LEN; i++)
+    {
+        if (a[i] % 2)
+        {
+            Cnt++;
+            Sum	+= a[i];
+        }
+    }
+    
+    cout << count << endl;
+    cout << (double)Sum / (double)Cnt << endl;
+    
+    return 0;
+}
+```
+
 ## 上课内容总结
 
 本部分是对上课内容的简单总结，可能会有遗漏，欢迎指出。
@@ -3056,6 +3231,250 @@ int main()
     return 0;
 }
 ```
+
+#### 将数组作为函数参数进行传递
+
+在2024年11月15日的课前代码练习中，我们对数组进行了多个操作，如果我们将这些操作封装成函数。在多文件项目中，我们可以这样实现。
+
+```C++
+// Project	: Test
+// File		: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+/* a[] Refer to the Starting Address of the Array
+n Refer to the Total Amount of Elements in Array a.	*/
+void Array_Init(int a[], int n);	
+void Array_Show(int a[], int n);
+void Array_Analyze(int a[], int n);
+
+#endif
+```
+
+```C++
+// Project	: Test
+// File		: MyFunction.cpp
+#include "MyFunction.h"
+
+void Array_Init(int a[], int n)
+{
+    srand(time(NULL));
+    
+    for (int i = 0; i < n; i++)
+    {
+        a[i]	= rand() % 101;
+    }
+    
+    return;
+}
+
+void Array_Show(int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << a[i] << ' ';
+    }
+    
+    cout << endl;
+    return;
+}
+
+void Array_Analyze(int a[], int n)
+{
+    int count	= 0;
+    int sum		= 0;
+    
+    for (int i = 0; i < n; i++)
+    {
+        if (a[i] % 2)
+        {
+            count++;
+            sum	+= a[i];
+        }
+    }
+    
+    cout << count << endl;
+    cout << (double)sum / (double)count << endl;
+}
+```
+
+```C++
+// Project	: Test
+// File		: main.cpp
+#include "MyFunction.h"
+#define ARRAY_LEN 10
+
+int main()
+{
+    int a[ARRAY_LEN]	= {0};
+    
+    Array_Init(a, ARRAY_LEN);
+    Array_Show(a, ARRAY_LEN);
+    Array_Show(a + 5, ARRAY_LEN - 5);			// Show the Last 5 Element of the Array
+    Array_Analyze(a, ARRAY_LEN);
+    
+    return 0;
+}
+```
+
+注意带注释的那行代码的意思，这里代表的是将```a[5]```(也就是第**6**个元素)的地址传入作为数组的首地址，长度为```ARRAY_LEN - 5```也就是```5```，对其进行展示。
+
+这段代码的运行结果是：
+
+![image-20241115112324998](assets/image-20241115112324998.png)
+
+可以看到，这里的展示是将数组的**<font color = red>下标</font>**为5, 6, 7, 8, 9(也就是**<font color = red>第</font>**6, 7, 8, 9, 10个元素)输出。
+
+> 这里是最容易让人犯迷糊的地方，<font color = red>请务必要注意数组的下标和数组的第几个元素的区别，以避免可能出现的**越界访问问题**。</font>越界读写行为均不可控。
+
+#### 数组的应用
+
+##### 排序
+
+###### 选择排序
+
+选定第一个数为基准，从前之后依次进行比较，如果发现有比它更小(大)的，则将其作为基准数，并将其放置在数组的最开头(或最末尾)。
+
+我们用一个数组来示例以将一个长度为6的数组通过选择排序得到一个升序数组的过程。
+
+```
+Initial Array
+6 1 3 2 5 4
+^
+选定6作为基准数，从前至后依次找是否有比6更大的
+6 1 3 2 5 4
+^
+找到最后发现没有数比6更大，6与最后一个数交换，此时6就到数组尾部，已经归位，之后不再考虑6。
+4 1 3 2 5	6
+^
+选定4作为基准数，从前至后依次找是否有比4更大的。
+4 1 3 2 5	6
+        ^
+找到5比4大，找到最后将5与最后一个数交换，此时5就到未排序的数组尾部，已经归位，之后不再考虑5。
+4 1 3 2   5 6
+^
+
+以此类推，接下来的过程如下，这里"^"指向的就是每次寻找结束后我们所得到的最大的数。
+4 1 3 2   5 6
+^
+
+2 1 3   4 5 6
+    ^
+
+2 1   3 4 5 6
+^
+
+1   2 3 4 5 6
+^
+
+1 2 3 4 5 6
+
+最后得到的就是已经排序好的数组。
+```
+
+代码实现：
+
+```C++
+// Project	: Test
+// File		: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+void Array_Init(int a[], int n);
+void Array_Show(int a[], int n);
+void Array_Sort_Select(int a[], int n);
+
+#endif
+```
+
+```C++
+// Project	: Test
+// File		: MyFunction.cpp
+#include "MyFunction.h"
+
+void Array_Init(int a[], int n)
+{
+    srand(time(NULL));
+    
+    for (int i = 0; i < n; i++)
+    {
+        a[i]	= rand() % 101;
+    }
+    
+    return;
+}
+
+void Array_Show(int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << a[i] << ' ';
+    }
+    
+    cout << endl;
+    return;
+}
+
+void Array_Sort_Select(int a[], int n)
+{
+    int MaxValue	= 0;
+    int Index		= 0;
+    
+    for (int i = 0; i < n; i++)
+    {
+        MaxValue	= a[0];
+        Index		= 0;
+        
+        for (int j = 0; j < n - i; j++)
+        {
+            if (a[j] > MaxValue)
+            {
+                MaxValue	= a[j];
+                Index		= j;
+            }
+        }
+        
+        int Tmp			= a[Index];
+        a[Index]		= a[n - i - 1];
+        a[n - i - 1]	= Tmp;
+    }
+    
+    return;
+}
+```
+
+```C++
+// Project	: Test
+// File		: main.cpp
+#include "MyFunction.h"
+
+const int 	SIZE	= 10;
+
+int main()
+{
+    int a[SIZE];
+    
+    Array_Init(a, SIZE);
+    Array_Show(a, SIZE);
+    Array_Sort_Select(a, SIZE);
+    Array_Show(a, SIZE);
+    
+    return 0;
+}
+```
+
+下面是这段代码运行的结果。
+
+![image-20241115120114229](assets\image-20241115120114229.png)
 
 ### 例题选讲
 
