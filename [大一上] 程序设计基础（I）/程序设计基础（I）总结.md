@@ -1,4 +1,4 @@
-# [Updated 2024-11-13] 程序设计基础（I）总结
+# [Updated 2024-11-20] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -3475,6 +3475,492 @@ int main()
 下面是这段代码运行的结果。
 
 ![image-20241115120114229](assets\image-20241115120114229.png)
+
+###### 冒泡排序
+
+对于这样的一组数，从前至后两两比较，如果发现后面比前面大，那么就将两个数交换。
+
+```
+Initial Array
+5 8 2 7 9 3
+
+Round 1:
+5 8 2 7 9 3
+  ^ ^
+8比2大，交换
+5 2 8 7 9 3
+    ^ ^
+8比7大，交换
+5 2 7 8 9 3
+        ^ ^
+9比3大，交换
+5 2 7 8 3 9
+          ^
+此时9已经归到正确的位置
+
+Round 2:
+5 2 7 8 3 9
+^ ^
+5比2大，交换
+2 5 7 8 3 9
+      ^ ^
+8比3大，交换
+2 5 7 3 8 9
+        ^
+此时8已经归到正确的位置
+
+Round 3:
+2 5 7 3 8 9
+    ^ ^
+7比3大，交换
+2 5 3 7 8 9
+      ^
+此时7已经归到正确的位置
+
+Round 4:
+2 5 3 7 8 9
+  ^ ^
+5比3大，交换
+2 3 5 7 8 9
+    ^
+此时5已经归到正确的位置
+
+Round 5:
+2 3 5 7 8 9
+^ ^
+符合要求，不做交换
+
+最后的数组就是
+2 3 5 7 8 9
+```
+
+那么代码实现如下：
+
+```C++
+// Project: Test
+// File: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+void Array_Init(int a[], int n);
+void Array_Show(int a[], int n);
+void Array_Sort_Bubble(int a[], int n);
+
+#endif
+```
+
+```C++
+// Project: Test
+// File: MyFunction.cpp
+#include "MyFunction.h"
+
+void Array_Init(int a[], int n)
+{
+    srand(time(NULL));
+    
+    for (int i = 0; i < n; i++)
+    {
+        a[i]	= rand() % 101;
+    }
+    
+    return;
+}
+
+void Array_Show(int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << a[i] << ' ';
+    }
+    
+    cout << endl;
+    return;
+}
+
+void Array_Sort_Bubble(int a[], int n)
+{
+	int tmp;
+    for (int i = 0; i < n; i++)
+    {
+    	for (int j = 0; j < n - i - 1; j++)
+    	{
+    		if (a[j] > a[j + 1])
+    		{
+    			tmp			= a[j];
+    			a[j]		= a[j + 1];
+    			a[j + 1]	= tmp;
+			}
+		}
+	}
+    
+    return;
+}
+```
+
+```C++
+// Project: Test
+// File: main.cpp
+#include "MyFunction.h"
+
+const int 	SIZE	= 10;
+
+int main()
+{
+    int a[SIZE];
+    
+    Array_Init(a, SIZE);
+    Array_Show(a, SIZE);
+    Array_Sort_Bubble(a, SIZE);
+    Array_Show(a, SIZE);
+    
+    return 0;
+}
+```
+
+###### 二分查找
+
+对于一个已经排列好的数组，我们可以通过二分查找的方式提高找到该数组的平均速度。
+
+```
+Initial Array:
+2 3 5 7 8 9
+Target: 8
+
+Round 1:
+2 3 5 7 8 9
+    ^
+检查: 8 > 5
+目标数在右半序列中
+
+Round 2:
+2 3 5 7 8 9
+      ^
+检查: 8 > 7
+目标数在剩余的右半序列中
+
+Round 3:
+2 3 5 7 8 9
+        ^
+检查: 8 = 8
+找到了目标数
+```
+
+代码实现如下:
+
+```C++
+// Project	: Test
+// File		: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+void Array_Init(int a[], int n);
+void Array_Show(int a[], int n);
+void Array_Sort_Bubble(int a[], int n);
+int Array_Binary_Search(int a[], int n, int target);
+
+#endif
+```
+
+```C++
+// Project	: Test
+// File		: MyFunction.cpp
+#include "MyFunction.h"
+
+void Array_Init(int a[], int n)
+{
+    srand(time(NULL));
+    
+    for (int i = 0; i < n; i++)
+    {
+        a[i]	= rand() % 101;
+    }
+    
+    return;
+}
+
+void Array_Show(int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << a[i] << ' ';
+    }
+    
+    cout << endl;
+    return;
+}
+
+void Array_Sort_Bubble(int a[], int n)
+{
+	int tmp;
+    for (int i = 0; i < n; i++)
+    {
+    	for (int j = 0; j < n - i - 1; j++)
+    	{
+    		if (a[j] > a[j + 1])
+    		{
+    			tmp			= a[j];
+    			a[j]		= a[j + 1];
+    			a[j + 1]	= tmp;
+			}
+		}
+	}
+    
+    return;
+}
+
+int Array_Binary_Search(int a[] ,int n, int target)
+{
+	int left	= 0;
+	int right	= n - 1;
+	int mid;
+	
+	while (left <= right)
+	{
+		mid		= (left + right) / 2;
+		
+		if (a[mid] == target)
+		{
+			return mid;
+		}
+		
+		if (left == right)
+		{
+			return -1;
+		}
+		
+		if (a[mid] < target)
+		{
+			left	= mid + 1;
+			continue;
+		}
+		
+		if (a[mid] > target)
+		{
+			right	= mid - 1;
+			continue;
+		}
+	}
+}
+```
+
+```C++
+// Project	: Test
+// File		: main.cpp
+#include "MyFunction.h"
+
+const int 	SIZE	= 10;
+
+int main()
+{
+    int a[SIZE];
+    int	Find;
+    int	Result;
+    
+    Array_Init(a, SIZE);
+    Array_Show(a, SIZE);
+    Array_Sort_Bubble(a, SIZE);
+    Array_Show(a, SIZE);
+    
+    cin >> Find;
+    
+    Result	= Array_Binary_Search(a, SIZE, Find);
+    
+    if (Result == -1)
+    {
+    	cout << "Not Found The Requested Number " << Find << "." << endl;
+	}
+    
+    else
+    {
+    	cout << "Number " << Find << " is Found at Position " << Result << "." << endl;
+	}
+    return 0;
+}
+```
+
+程序运行结果为：
+
+![image-20241120112016684](assets/image-20241120112016684.png)
+
+还有一种递归的写法，如下所示：
+
+```C++
+int Array_Binary_Search(int a[], int left, int right, int target)
+{
+    if (left > right)
+    {
+        return -1;
+    }
+    
+    int mid	= (left + right) / 2;
+    
+    if (a[mid] == target)
+    {
+        return mid;
+    }
+    
+    if (a[mid] > target)
+    {
+        return Array_Binary_Search(a, left, mid - 1, target);
+    }
+    
+    if (a[mid] < target)
+    {
+        return Array_Binary_Search(a, mid + 1, right, target);
+    }
+}
+```
+
+#### 二维数组
+
+用二维数组对数据进行存储，定义方式：
+
+```
+Type Array_Name[Array_Size][Array_Size];
+```
+
+初始化方式：
+
+```C++
+int a[4][4] =	{{10, 11},
+				 {20, 21, 22, 23},
+                 {0, },
+                 {40, 41, 42, 43}};			// Valid
+int b[4][4] =	{{10, 11, 0 , 0 },
+                 {20, 21, 22, 23},
+                 {0 , 0 , 0 , 0 },
+                 {40, 41, 42, 43}}; 		// Valid, Array b is completely the same with Array a
+int c[4][4] =	{1, 2, 3, 4, 5, 6, 7, 8};	// Valid, treat 2-dimension array as a 1-dimension array.
+```
+
+代码实现如下：
+
+<center><font color = red>注意：若需要将二维数组作为参数传递，除其第一维的大小以外均应该提前指定。</font></center>
+
+```C++
+// Project	: Test
+// File		: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+const int ROW			= 4;
+const int COL			= 4;
+const int Upper_Limit	= 101;
+
+void Array_Init(int a[][COL], int Row);
+void Array_Show(int a[][COL], int Row);
+
+#endif
+```
+
+```C++
+// Project	: Test
+// File		: MyFunction.cpp
+#include "MyFunction.h"
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+
+void Array_Init(int a[][COL], int Row)
+{
+	srand(time(NULL));
+	
+	for (int i = 0; i < Row; i++)
+	{
+		for (int j = 0; j < COL; j++)
+		{
+			a[i][j]	= rand() % Upper_Limit + 1;
+		}
+	}
+	return;
+}
+
+void Array_Show(int a[][COL], int Row)
+{
+	for (int i = 0; i < Row; i++)
+	{
+		for (int j = 0; j < COL; j++)
+		{
+			cout << a[i][j] << ' ';
+		}
+		cout << endl;
+	}
+	return;
+}
+```
+
+```C++
+// Project	: Test
+// File		: main.cpp
+#include "MyFunction.h"
+
+int main()
+{
+	int a[ROW][COL];
+	
+	Array_Init(a, ROW);
+	Array_Show(a, ROW);
+	
+	return 0;
+}
+```
+
+#### 字符数组
+
+我们可以通过字符数组来存储一个字符串，声明及初始化方式如下。
+
+```C++
+char ch[10]	= {104, 101, 108, 108, 111};	// Valid
+char ch[10]	= {'h', 'e', 'l', 'l', 'o'};	// Valid, clearer than previous one
+char ch[10] = "hello";						// Valid, even clearer
+char ch[101] = "Hello \0 World.";			// Valid, but if considered as string, it is considered "hello "
+```
+
+因为字符串末尾会以```\0```表示字符串结束，所以在存储一个5个字符的字符串时，至少应该申请6个字符的字符数组。输出字符串时，直接```cout << ch```即可。
+
+示例代码：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    char ch[101]	= {'h', 'e', 'l', 'l', 'o'};
+    
+    cout << ch << endl;
+    
+    for(int i = 0; i < 101; i++)
+    {
+        cout << (int)ch[i] << ' ';
+    }
+    
+	cout << endl;
+	
+	for (int i = 0; i < 101; i++)
+	{
+		cout.put(ch[i]);
+	}
+    
+    cout << endl << sizeof(ch);
+    
+    return 0;
+}
+```
+
+在```<cstring>```头文件中，有几个函数可以用于对字符串进行处理，课后参阅```strlen(), strcpy(), strncpy(), strcat(), strncat(), strcmp(), strncmp()```相关函数的内容进行补充学习。
 
 ### 例题选讲
 
