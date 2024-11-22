@@ -1,4 +1,4 @@
-# [Updated 2024-11-13] 程序设计基础（I）总结
+# [Updated 2024-11-22] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -44,7 +44,9 @@
 
 [2024-10-18] 作业 [Pg. 89 - 11题]
 
-[2024-11-01] 作业 [Pg. 137 21题]
+[2024-11-01] 作业 [Pg. 137 - 21题]
+
+[2024-11-22] 作业 [Pg. 176 - 14题]
 
 ## 课前代码练习
 
@@ -3475,6 +3477,943 @@ int main()
 下面是这段代码运行的结果。
 
 ![image-20241115120114229](assets\image-20241115120114229.png)
+
+###### 冒泡排序
+
+对于这样的一组数，从前至后两两比较，如果发现后面比前面大，那么就将两个数交换。
+
+```
+Initial Array
+5 8 2 7 9 3
+
+Round 1:
+5 8 2 7 9 3
+  ^ ^
+8比2大，交换
+5 2 8 7 9 3
+    ^ ^
+8比7大，交换
+5 2 7 8 9 3
+        ^ ^
+9比3大，交换
+5 2 7 8 3 9
+          ^
+此时9已经归到正确的位置
+
+Round 2:
+5 2 7 8 3 9
+^ ^
+5比2大，交换
+2 5 7 8 3 9
+      ^ ^
+8比3大，交换
+2 5 7 3 8 9
+        ^
+此时8已经归到正确的位置
+
+Round 3:
+2 5 7 3 8 9
+    ^ ^
+7比3大，交换
+2 5 3 7 8 9
+      ^
+此时7已经归到正确的位置
+
+Round 4:
+2 5 3 7 8 9
+  ^ ^
+5比3大，交换
+2 3 5 7 8 9
+    ^
+此时5已经归到正确的位置
+
+Round 5:
+2 3 5 7 8 9
+^ ^
+符合要求，不做交换
+
+最后的数组就是
+2 3 5 7 8 9
+```
+
+那么代码实现如下：
+
+```C++
+// Project: Test
+// File: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+void Array_Init(int a[], int n);
+void Array_Show(int a[], int n);
+void Array_Sort_Bubble(int a[], int n);
+
+#endif
+```
+
+```C++
+// Project: Test
+// File: MyFunction.cpp
+#include "MyFunction.h"
+
+void Array_Init(int a[], int n)
+{
+    srand(time(NULL));
+    
+    for (int i = 0; i < n; i++)
+    {
+        a[i]	= rand() % 101;
+    }
+    
+    return;
+}
+
+void Array_Show(int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << a[i] << ' ';
+    }
+    
+    cout << endl;
+    return;
+}
+
+void Array_Sort_Bubble(int a[], int n)
+{
+	int tmp;
+    for (int i = 0; i < n; i++)
+    {
+    	for (int j = 0; j < n - i - 1; j++)
+    	{
+    		if (a[j] > a[j + 1])
+    		{
+    			tmp			= a[j];
+    			a[j]		= a[j + 1];
+    			a[j + 1]	= tmp;
+			}
+		}
+	}
+    
+    return;
+}
+```
+
+```C++
+// Project: Test
+// File: main.cpp
+#include "MyFunction.h"
+
+const int 	SIZE	= 10;
+
+int main()
+{
+    int a[SIZE];
+    
+    Array_Init(a, SIZE);
+    Array_Show(a, SIZE);
+    Array_Sort_Bubble(a, SIZE);
+    Array_Show(a, SIZE);
+    
+    return 0;
+}
+```
+
+###### 二分查找
+
+对于一个已经排列好的数组，我们可以通过二分查找的方式提高找到该数组的平均速度。
+
+```
+Initial Array:
+2 3 5 7 8 9
+Target: 8
+
+Round 1:
+2 3 5 7 8 9
+    ^
+检查: 8 > 5
+目标数在右半序列中
+
+Round 2:
+2 3 5 7 8 9
+      ^
+检查: 8 > 7
+目标数在剩余的右半序列中
+
+Round 3:
+2 3 5 7 8 9
+        ^
+检查: 8 = 8
+找到了目标数
+```
+
+代码实现如下:
+
+```C++
+// Project	: Test
+// File		: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+void Array_Init(int a[], int n);
+void Array_Show(int a[], int n);
+void Array_Sort_Bubble(int a[], int n);
+int Array_Binary_Search(int a[], int n, int target);
+
+#endif
+```
+
+```C++
+// Project	: Test
+// File		: MyFunction.cpp
+#include "MyFunction.h"
+
+void Array_Init(int a[], int n)
+{
+    srand(time(NULL));
+    
+    for (int i = 0; i < n; i++)
+    {
+        a[i]	= rand() % 101;
+    }
+    
+    return;
+}
+
+void Array_Show(int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << a[i] << ' ';
+    }
+    
+    cout << endl;
+    return;
+}
+
+void Array_Sort_Bubble(int a[], int n)
+{
+	int tmp;
+    for (int i = 0; i < n; i++)
+    {
+    	for (int j = 0; j < n - i - 1; j++)
+    	{
+    		if (a[j] > a[j + 1])
+    		{
+    			tmp			= a[j];
+    			a[j]		= a[j + 1];
+    			a[j + 1]	= tmp;
+			}
+		}
+	}
+    
+    return;
+}
+
+int Array_Binary_Search(int a[] ,int n, int target)
+{
+	int left	= 0;
+	int right	= n - 1;
+	int mid;
+	
+	while (left <= right)
+	{
+		mid		= (left + right) / 2;
+		
+		if (a[mid] == target)
+		{
+			return mid;
+		}
+		
+		if (left == right)
+		{
+			return -1;
+		}
+		
+		if (a[mid] < target)
+		{
+			left	= mid + 1;
+			continue;
+		}
+		
+		if (a[mid] > target)
+		{
+			right	= mid - 1;
+			continue;
+		}
+	}
+}
+```
+
+```C++
+// Project	: Test
+// File		: main.cpp
+#include "MyFunction.h"
+
+const int 	SIZE	= 10;
+
+int main()
+{
+    int a[SIZE];
+    int	Find;
+    int	Result;
+    
+    Array_Init(a, SIZE);
+    Array_Show(a, SIZE);
+    Array_Sort_Bubble(a, SIZE);
+    Array_Show(a, SIZE);
+    
+    cin >> Find;
+    
+    Result	= Array_Binary_Search(a, SIZE, Find);
+    
+    if (Result == -1)
+    {
+    	cout << "Not Found The Requested Number " << Find << "." << endl;
+	}
+    
+    else
+    {
+    	cout << "Number " << Find << " is Found at Position " << Result << "." << endl;
+	}
+    return 0;
+}
+```
+
+程序运行结果为：
+
+![image-20241120112016684](assets/image-20241120112016684.png)
+
+还有一种递归的写法，如下所示：
+
+```C++
+int Array_Binary_Search(int a[], int left, int right, int target)
+{
+    if (left > right)
+    {
+        return -1;
+    }
+    
+    int mid	= (left + right) / 2;
+    
+    if (a[mid] == target)
+    {
+        return mid;
+    }
+    
+    if (a[mid] > target)
+    {
+        return Array_Binary_Search(a, left, mid - 1, target);
+    }
+    
+    if (a[mid] < target)
+    {
+        return Array_Binary_Search(a, mid + 1, right, target);
+    }
+}
+```
+
+#### 二维数组
+
+用二维数组对数据进行存储，定义方式：
+
+```
+Type Array_Name[Array_Size][Array_Size];
+```
+
+初始化方式：
+
+```C++
+int a[4][4] =	{{10, 11},
+				 {20, 21, 22, 23},
+                 {0, },
+                 {40, 41, 42, 43}};			// Valid
+int b[4][4] =	{{10, 11, 0 , 0 },
+                 {20, 21, 22, 23},
+                 {0 , 0 , 0 , 0 },
+                 {40, 41, 42, 43}}; 		// Valid, Array b is completely the same with Array a
+int c[4][4] =	{1, 2, 3, 4, 5, 6, 7, 8};	// Valid, treat 2-dimension array as a 1-dimension array.
+```
+
+代码实现如下：
+
+<center><font color = red>注意：若需要将二维数组作为参数传递，除其第一维的大小以外均应该提前指定。</font></center>
+
+```C++
+// Project	: Test
+// File		: MyFunction.h
+#ifndef __MYFUNCTION_H__
+#define __MYFUNCTION_H__
+
+const int ROW			= 4;
+const int COL			= 4;
+const int Upper_Limit	= 101;
+
+void Array_Init(int a[][COL], int Row);
+void Array_Show(int a[][COL], int Row);
+
+#endif
+```
+
+```C++
+// Project	: Test
+// File		: MyFunction.cpp
+#include "MyFunction.h"
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+using namespace std;
+
+
+void Array_Init(int a[][COL], int Row)
+{
+	srand(time(NULL));
+	
+	for (int i = 0; i < Row; i++)
+	{
+		for (int j = 0; j < COL; j++)
+		{
+			a[i][j]	= rand() % Upper_Limit + 1;
+		}
+	}
+	return;
+}
+
+void Array_Show(int a[][COL], int Row)
+{
+	for (int i = 0; i < Row; i++)
+	{
+		for (int j = 0; j < COL; j++)
+		{
+			cout << a[i][j] << ' ';
+		}
+		cout << endl;
+	}
+	return;
+}
+```
+
+```C++
+// Project	: Test
+// File		: main.cpp
+#include "MyFunction.h"
+
+int main()
+{
+	int a[ROW][COL];
+	
+	Array_Init(a, ROW);
+	Array_Show(a, ROW);
+	
+	return 0;
+}
+```
+
+#### 字符数组
+
+我们可以通过字符数组来存储一个字符串，声明及初始化方式如下。
+
+```C++
+char ch[10]	= {104, 101, 108, 108, 111};	// Valid
+char ch[10]	= {'h', 'e', 'l', 'l', 'o'};	// Valid, clearer than previous one
+char ch[10] = "hello";						// Valid, even clearer
+char ch[101] = "Hello \0 World.";			// Valid, but if considered as string, it is considered "hello "
+```
+
+因为字符串末尾会以```\0```表示字符串结束，所以在存储一个5个字符的字符串时，至少应该申请6个字符的字符数组。输出字符串时，直接```cout << ch```即可。
+
+示例代码：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    char ch[101]	= {'h', 'e', 'l', 'l', 'o'};
+    
+    cout << ch << endl;
+    
+    for(int i = 0; i < 101; i++)
+    {
+        cout << (int)ch[i] << ' ';
+    }
+    
+	cout << endl;
+	
+	for (int i = 0; i < 101; i++)
+	{
+		cout.put(ch[i]);
+	}
+    
+    cout << endl << sizeof(ch);
+    
+    return 0;
+}
+```
+
+在```<cstring>```头文件中，有几个函数可以用于对字符串进行处理，如下。
+
+##### strlen()函数
+
+用于获取字符数组中**有效**字符的个数(从首位统计至第一个```'\0'```，看第一个```'\0'```之前一共有多少个字符)，例程：
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101]	= "hello world";
+    int		len		= strlen(ch);
+    
+    cout << len << endl;
+    return 0;
+}
+```
+
+对应的，对于这段例程来说，输出的结果是：
+
+```
+11
+```
+
+而如果我们改成这样的代码，统计出来的字符数就会和之前有所不同：
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101]	= "hello\0 world";
+    int		len		= strlen(ch);
+    
+    cout << len << endl;
+    return 0;
+}
+```
+
+对于这段例程来说，输出的结果就是:
+
+```
+5
+```
+
+但这并非代表我们字符数组中```'\0'```以后的数都没有存入，如果我们通过for循环强制输出字符串中的每一个字符，我们还是可以看到```'\0'```后的字符。
+
+##### strcpy()函数
+
+将第二个参数对应的字符串中的```'\0'```及之前的内容拷贝进入第一个字符串中。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101];
+    char	dest[101];
+    
+    strcpy(ch, "hello world");
+    strcpy(dest, ch);
+    
+    cout << ch << endl;
+    cout << dest << endl;
+    return 0;
+}
+```
+
+输出的结果是：
+
+```
+hello world
+hello world
+```
+
+倘若我们只要\"world\"，那么我们就可以更改传入的始地址。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101];
+    char	dest[101];
+    
+    strcpy(ch, "hello world");
+    strcpy(dest, "xxxxxxxxxxxx");
+    strcpy(dest + 6, ch + 6);
+    
+    cout << dest << endl;
+    return 0;
+}
+```
+
+这样的输出就是：
+
+```
+xxxxxxworld
+```
+
+##### strncpy()函数
+
+与```strcpy()```功能相同，不过多了一个参数可以指定拷贝源字符串中的多少个字符。
+
+我们用下面这段程序了解一下```strcpy()```的局限性： 
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101]	= "hello world";
+    char	dest[5];
+    
+    strcpy(dest, ch);
+    // Illegal. This will visit memory which is not assigned to char array dest[5]
+    
+    cout << dest << endl;
+    return 0;
+}
+```
+
+虽然这样的程序仍然能正确输出```hello world```，但因为非法访问了其他内存，可能会导致不确定的问题。
+
+对应的，如果我们使用```strncpy()```函数进行拷贝，可以在拷贝的过程中指定拷贝的字符数，防止可能的非法访问。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101]	= "hello world";
+    char	dest[5];
+    
+    strcpy(dest, ch, 4);
+    
+    cout << dest << endl;
+    return 0;
+}
+```
+
+##### memcpy()函数
+
+```memcpy()```函数用于将两个数组的内存字节进行拷贝。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101]	= "hello world";
+    char	dest[101];
+    
+    memcpy(dest, ch, 12);
+    
+    return 0;
+}
+```
+
+这段代码的意思是将ch数组的前12个字节的内容拷贝到dest的前12个字节中。
+
+运行代码输出的结果是：
+
+```
+hello world
+```
+
+##### strcat()函数
+
+```strcat()```函数用于将两个字符进行拼接，将源字符(第二个参数)拼接到目标字符(第一个参数)的后方。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101]	= "hello world";
+    char	dest[5]	= "wow!";
+    
+    strcat(ch, dest);
+    
+    cout << ch << endl;
+    return 0;
+}
+```
+
+输出结果：
+
+```
+hello worldwow!
+```
+
+同样需要注意是否有非法内存访问的问题，这里不再额外进行解释。
+
+
+
+
+##### strncat()函数
+
+```strncat()```与```strcat()```函数功能相同，只是可以通过第三个参数控制拼接的字符数量。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	ch[101]	= "hello world";
+    char	dest[5]	= "wow!";
+    
+    strcat(ch, dest, 2);
+    
+    cout << ch << endl;
+    return 0;
+}
+```
+
+输出的结果是：
+
+```
+hello worldwo
+```
+
+##### strcmp()函数
+
+用于比较两个字符串，分别通过字符串长度、每一项具体对应的ASCII码值大小进行比较，得到结果。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    cout << strcmp("hello world", "hello world") << endl;
+    cout << strcmp("hallo world", "hello world") << endl;
+    cout << strcmp("hhllo world", "hello world") << endl;
+}
+```
+
+输出结果为
+
+```
+0
+-1
+1
+```
+
+| ```strcmp()```返回值 |                           表示含义                           |
+| :------------------: | :----------------------------------------------------------: |
+|          0           |                       两字符串完全相同                       |
+|          -1          | 第一个字符串的长度比第二个字符串长度小，或者两者长度相同，但从左到右依次对比时，第一个不相同的字符，第一个字符串的该字符小于第二个字符串的该字符 |
+|          1           | 第一个字符串的长度比第二个字符串长度大，或者两者长度相同，但从左到右依次对比时，第一个不相同的字符，第一个字符串的该字符大于第二个字符串的该字符 |
+
+##### strncmp()函数
+
+用于比较两个字符串的前$n$个字符。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    cout << strncmp("9241608403", "9241068402", 8) << endl;
+    return 0;
+}
+```
+
+输出的结果是
+
+```
+0
+```
+
+参考前文中```strcmp()```返回值的意义表格，可以得出这两个字符串前8位相同的结论。
+
+---
+
+##### 部分函数的重新实现
+
+我们可以自己重新写一遍这些函数，来更深体会这些函数的作用。
+
+```C++
+// Project	: Test
+// File		: MyFunction.h
+#ifndef	__MYFUNCTION_H__
+#define	__MYFUNCTION_H__
+int		mystrlen(char source[]);
+void	mystrcat(char dest[], char source[]);
+#endif
+```
+
+```C++
+// Project	: Test
+// File		: MyFunction.cpp
+#include "MyFunction.h"
+#include <cstring>
+
+int mystrlen(char source[])
+{
+    int	n_Cnt	= 0;
+    
+    while (source[n_Cnt])
+    {
+        n_Cnt++;
+    }
+    
+    return n_Cnt;
+}
+
+void mystrcat(char dest[], char source[])
+{
+    int	n_Length	= mystrlen(dest);
+    int	i			= 0;
+    
+    while (source[i])
+    {
+        dest[i + n_Length]	= source[i];
+        i++;
+    }
+    
+    dest[i + n_Length]	= '\0';
+    return;
+}
+```
+
+```C++
+// Project	: Test
+// File		: main.cpp
+#include "MyFunction.h"
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    char	ch1[101]	= "String1 ";
+    char	ch2[101]	= "String2";
+    
+    mystrcat(ch1, ch2);
+    
+    cout << ch1 << endl;
+    return 0;
+}
+```
+
+运行结果为：
+
+```
+String1 String2
+```
+
+##### 字符串的输入
+
+逐字符读入时可以使用```cin.get()```函数，如下所示。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    char	ch[101];
+   	int		n_Cnt	= 0;
+    
+    while (1)
+    {
+        cin.get(ch[n_Cnt]);
+        
+        if (ch[n_Cnt] == 'q')			// Set 'q' as a flag for the end of a string
+        {
+            ch[n_Cnt]	= '\0';
+            break;
+        }
+        
+        n_Cnt++;
+    }
+    
+    cout << ch << endl;
+    return 0;
+}
+```
+
+逐行读入可以使用```cin.getline()```函数，如下所示。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    char	ch[101];
+    
+    cin.getline(ch, 100);		// Read a line of text with a maximum length of 100 (including '\0')
+    
+    cout << ch << endl;
+    
+    return 0;
+}
+```
+
+这里代表的是读入一行最长为100(包含```'\0'```)的字符串，并存储至字符数组ch中。
+
+逐个字符串读入可以直接使用```cin```。
+
+<font color = red>需要注意的是在使用```cin```读入时会默认空格、制表符、换行符代表该字符串结束。</font>
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    char	ch[101];
+    
+    cin >> ch;
+	
+    cout << ch << endl;
+    return 0;
+}
+```
+
+比如这样输入时：
+
+```
+String1 String2
+```
+
+这段代码只会输出：
+
+```
+String1
+```
 
 ### 例题选讲
 
