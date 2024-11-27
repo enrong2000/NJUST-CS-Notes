@@ -1,4 +1,4 @@
-# [Updated 2024-11-22] 程序设计基础（I）总结
+# [Updated 2024-11-27] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -1132,6 +1132,547 @@ int main()
     cout << (double)Sum / (double)Cnt << endl;
     
     return 0;
+}
+```
+
+### 2024-11-27 上机测验(1) 角谷猜想
+
+**[题目描述]**
+
+你听说过角谷猜想吗？
+
+任意的正整数，比如5， 我们从它开始，如下规则计算： 如果是偶数，则除以2，如果是奇数，则乘以3再加1。如此循环，最终必会得到“1”！ 比如5的处理过程是：5 16 8 4 2 1 
+
+一个正整数经过多少步才能变成1， 称为角谷步数。对于5而言，步数也是5；对于1，步数为0。
+
+**[输入格式]**
+
+输入一个整数n（1<n<300）。
+
+**[输出格式]**
+
+输出n的角谷步数
+
+**[样例输入1]**
+
+```
+3
+```
+
+**[样例输出1]**
+
+```
+7
+```
+
+**[样例输入2]**
+
+```
+7
+```
+
+**[样例输出2]**
+
+```
+16
+```
+
+---
+
+思路: 使用```while```循环，对输入的数执行角谷猜想的操作，每完成一次操作就更新一次步数，直到数值为1结束。
+
+```C++
+#include <cstdio>
+
+int	n_Num;
+int	n_Step;
+
+int main()
+{
+	scanf("%d", &n_Num);
+	
+	while (n_Num != 1)
+	{
+		if (n_Num % 2)
+		{
+			n_Num	= n_Num * 3 + 1;
+		}
+		else
+		{
+			n_Num	/= 2;
+		}
+		n_Step++;
+	}
+	
+	printf("%d\n", n_Step);
+	
+	return 0;
+}
+```
+
+> 说明: 这里我根据自己的代码编写习惯使用的是C风格的输入输出方式。
+> ```scanf("%d", &n_Num);```语句等价于C++中的```cin >> n_Num;```
+> ```printf("%d\n", n_Step);```语句等价于C++中的```cout << n_Step << endl;```
+
+---
+
+### 2024-11-27 上机测验(2) 分数化简
+
+**[题目描述]**
+
+将一个分数化简。比如2/4可化简为1/2。
+
+**[输入格式]**
+
+输入两个整数n,m, 分别表示分子和分母。其中分子n可以是任意整数，分母m不为0。 注意，分子为0时，分母应简化为1。
+
+**[输出格式]**
+
+输出化简后的分数。
+
+**[样例输入1]**
+
+```
+-4 6
+```
+
+**[样例输出1]**
+
+```
+-2/3
+```
+
+**[样例输入2]**
+
+```
+4 6
+```
+
+**[样例输出2]**
+
+```
+2/3
+```
+
+**[样例输入3]**
+
+```
+4 -6
+```
+
+**[样例输出3]**
+
+```
+-2/3
+```
+
+**[样例输入4]**
+
+```
+-4 -6
+```
+
+**[样例输出4]**
+
+```
+2/3
+```
+
+**[样例输入5]**
+
+```
+0 6
+```
+
+**[样例输出5]**
+
+```
+0/1
+```
+
+**[样例输入6]**
+
+```
+-3446459 -6787
+```
+
+**[样例输出6]**
+
+```
+3446459/6787
+```
+
+---
+
+思路: 对于输入的两个数，首先我们要对分子的值进行特判，如果分子为0，则直接将分母置为1。
+
+对于分子不为零的情况，我们需要先考虑其正负问题，如果分子为正而分母为负，需要将两者的正负进行对调，如果分子分母均为负，则都应该将其改为正值。
+
+完成了对分子分母的值的初始处理后，接下来我们要做的就是进行**约分**操作，这里介绍```<algorithm>```头文件中的```__gcd(int a, int b)```函数，这个函数会返回两个数的最大公约数。我们求出分子和分母**绝对值**(可以通过```<cmath>```头文件中的```abs()```函数求得，注意类型的转换)的最大公约数之后，让分子分母同时除以这个最大公约数即可得到约简后的分数。
+
+```C++
+#include <cstdio>
+#include <algorithm>
+#include <cmath>
+using namespace std;
+
+int	n_Upper;
+int	n_Lower;
+int	n_GCD;
+
+int main()
+{
+	scanf("%d %d", &n_Upper, &n_Lower);
+	
+	if (!n_Upper)
+	{
+		n_Lower	= 1;
+	}
+	
+	else
+	{
+		if ((n_Upper < 0 && n_Lower < 0) || (n_Upper > 0 && n_Lower < 0) )
+		{
+			n_Upper	= -n_Upper;
+			n_Lower	= -n_Lower;
+		}
+	
+		n_GCD	= __gcd((int)(abs(n_Upper)), (int)(abs(n_Lower)));
+		n_Upper	/= n_GCD;
+		n_Lower	/= n_GCD;
+	}
+	
+	printf("%d/%d\n", n_Upper, n_Lower);
+	return 0;
+}
+```
+
+---
+
+### 2024-11-27 上机测验(3) 狭义相同字符对和广义相同字符对
+
+**[题目描述]**
+
+“狭义相同字符对”是指完全相同的两个字符；“广义相同字符对”是指一个字符串忽略大小写以后相同的两个字符，例如：‘A’和‘a’。先输入一个字符串 (字符长度<1000)，计算其中有多少“狭义相同字符对”和“广义相同字符对”。
+
+**[输入格式]**
+
+输入一组字符串(字符长度<1000)，字符串中字符仅限于26个英文字母的大小写字符。
+
+**[输出格式]**
+
+两个整数，分别为字符串中的“狭义相同字符对”和“广义相同字符对”个数，之间用一个空格分隔开来。注意，字符“aaa”中的相同字符对为3个，分别是第一个a和第二个a，第一个a和第三个a，第二个a和 第三个a。
+
+**[样例输入]**
+
+```
+abcaAb
+```
+
+**[样例输出]**
+
+```
+2 4
+```
+
+---
+
+思路: 对于字符串中的每个字符，均从该字符起向后寻找与之相同(或与之仅有大小写差异)的字符，每找到一个就递增答案。
+
+由于输入保证只包含英文字母，我们可以计算找到的两个字符间的ASCII码值差异的绝对值是否与```a```和```A```的ASCII码值差异相同即可，参考代码如下：
+
+```C++
+#include <cstdio>
+#include <cstring>
+
+inline int ABS(int n){ return n < 0 ? (-n): n;}
+
+const int 	SIZE	= 1001;
+char		s_Str[SIZE];
+
+int			n_Length;
+int			n_Ans1;
+int			n_Ans2;
+
+int main()
+{
+	scanf("%s", s_Str);
+	
+	n_Length	= strlen(s_Str);
+	
+	for (int i = 0; i < n_Length; i++)
+	{
+		for (int j = i + 1; j < n_Length; j++)
+		{
+			if (s_Str[i] == s_Str[j])
+			{
+				n_Ans1++;
+				n_Ans2++;
+			}
+			
+			if (ABS(s_Str[i] - s_Str[j]) == ABS('a' - 'A'))
+			{
+				n_Ans2++;
+			}
+		}
+	}
+	
+	printf("%d %d\n", n_Ans1, n_Ans2);
+	
+	return 0;
+}
+```
+
+---
+
+### 2024-11-27 上机测验(4) N进制数转换
+
+**[题目描述]**
+
+*N* 进制数指的是逢 N进一的计数制。例如，人们日常生活中大多使用十进制计数，而计算机底层则一般使用二进制。除此之外，八进制和十六进制在一些场合也是常用的计数制（十六进制中，一般使用字母 A 至 F 表示十至十五；本题中，十一进制到十五进制也是类似的）。
+
+在本题中，我们将给出n个不同进制的数。你需要分别把它们转换成十进制数。
+
+**[输入格式]**
+
+输入的第一行为一个十进制表示的整数 N。接下来 N 行，每行一个整数 K，随后是一个空格，紧接着是一个 K进制数，表示需要转换的数。保证所有 K进制数均由数字和大写字母组成，且不以 0开头。保证 K进制数合法。
+
+保证 N≤1000；保证 2≤K≤16。
+
+保证所有 K进制数的位数不超过 9。
+
+**[输出格式]**
+
+输出 N行，每一个十进制数，表示对应 K进制数的十进制数值。
+
+**[样例输入1]**
+
+```
+2
+8 1362
+16 3F0
+```
+
+**[样例输出1]**
+
+```
+754
+1008
+```
+
+**[样例输入2]**
+
+```
+2
+2 11011
+10 123456789
+```
+
+**[样例输出2]**
+
+```
+27
+123456789
+```
+
+---
+
+思路: 用字符串读入数据，随后按规则进行数值转换到一个数组中，再根据进制规则拼出该数据所对应的十进制的数值。
+
+**<font color = red>注意</font>**：由于输入的字符串长度最大为9，如果输入的十六进制数为```FFFFFFFFF```，其转换得到的值为```68719476735```，它已经超出了32位整型表示的数值上限```2147483647```，应使用```long long```作为答案的数据类型。
+
+```C++
+#include <cstdio>
+#include <cstring>
+
+const int	SIZE	= 101;
+
+int			n_TotCase;
+int			n_Length;
+int			n_K;
+long long	n_Ans;
+char		s_Str[SIZE];
+int			n_Num[SIZE];
+
+int main()
+{
+	scanf("%d", &n_TotCase);
+	
+	while (n_TotCase--)
+	{
+		scanf("%d", &n_K);
+		scanf("%s", s_Str);
+		
+		n_Length	= strlen(s_Str);
+		
+		for (int i = 0; i < n_Length; i++)
+		{
+			if (s_Str[i] >= '0' && s_Str[i] <= '9')
+			{
+				n_Num[i]	= s_Str[i] - '0';
+			}
+			
+			if (s_Str[i] >= 'A' && s_Str[i] <= 'F')
+			{
+				n_Num[i]	= 10 + (s_Str[i] - 'A');
+			}
+			
+			if (s_Str[i] >= 'a' && s_Str[i] <= 'f')
+			{
+				n_Num[i]	= 10 + (s_Str[i] - 'a');
+			}
+		}
+		
+		n_Ans	= 0;
+		
+		for (int i = 0; i < n_Length; i++)
+		{
+			n_Ans	*= (long long)n_K;
+			n_Ans	+= (long long)n_Num[i];
+		}
+		
+		printf("%lld\n", n_Ans);
+	}
+	
+	return 0;
+}
+```
+
+---
+
+### 2024-11-27 上机测验(5) 寻找目标字符串
+
+**[题目描述]**
+
+给出一个字符串和多行文字，在这些文字中找到字符串出现的那些行。你的程序还需支持大小写敏感选项：当选项打开时，表示同一个字母的大写和小写看作不同的字符；当选项关闭时，表示同一个字母的大写和小写看作相同的字符。
+
+**[输入格式]**
+
+输入的第一行包含一个字符串S，由大小写英文字母组成。第二行包含一个数字，表示大小写敏感的选项，当数字为0时表示大小写不敏感，当数字为1时表示大小写敏感。第三行包含一个整数n，表示给出的文字的行数。 　接下来n行，每行包含一个字符串，字符串由大小写英文字母组成，不含空格和其他字符。
+
+(1<=n<=100，每个字符串的长度不超过100。)
+
+**[输出格式]**
+
+输出多行，每行包含一个字符串，按出现的顺序依次给出那些包含了字符串S的行。
+
+**[样例输入1]**
+
+```
+Hello
+1
+5
+HelloWorld
+HiHiHelloHiHi
+GrepIsAGreatTool
+HELLO
+HELLOisNOTHello
+```
+
+**[样例输出1]**
+
+```
+HelloWorld
+HiHiHelloHiHi
+HELLOisNOTHello
+```
+
+**[样例输入2]**
+
+```
+Hello
+0
+5
+HelloWorld
+HiHiHelloHiHi
+GrepIsAGreatTool
+HELLO
+HELLOisNOTHello
+```
+
+**[样例输出2]**
+
+```
+HelloWorld
+HiHiHelloHiHi
+HELLO
+HELLOisNOTHello
+```
+
+---
+
+思路: 2024-11-27 上机测验(2)题目的升级版，思路类似，只不过从找单一字母变成了找一整个字符串，并且只要找到第一个符合条件的字符串，那就说明这个字符串是符合题目要求的。
+
+```C++
+#include <cstdio>
+#include <cstring>
+
+const int	SIZE	= 101;
+
+int			n_FoundFlag;
+int			n_UpperSensitive;
+int			n_StdLength;
+int			n_CheckLength;
+int			n_TotCase;
+char		s_StdStr[SIZE];
+char		s_CheckStr[SIZE];
+
+inline int	ABS(int n) {return n < 0 ? -n : n;}
+
+int main()
+{
+	scanf("%s", s_StdStr);
+	scanf("%d", &n_UpperSensitive);
+	scanf("%d", &n_TotCase);
+	
+	n_StdLength	= strlen(s_StdStr);
+	
+	while (n_TotCase--)
+	{
+		n_FoundFlag	= 0;
+		
+		scanf("%s", s_CheckStr);
+		
+		n_CheckLength	= strlen(s_CheckStr);
+		
+		for (int i = 0; i < n_CheckLength - n_StdLength + 1; i++)
+		{
+			n_FoundFlag	= 1;
+			for (int j = 0; j < n_StdLength; j++)
+			{
+				if (n_UpperSensitive)
+				{
+					if (s_StdStr[j] != s_CheckStr[i + j])
+					{
+						n_FoundFlag	= 0;
+						break;
+					}
+				}
+				
+				else
+				{
+					if (ABS(s_StdStr[j] - s_CheckStr[i + j]) != ABS('a' - 'A') &&
+                        s_StdStr[j] != s_CheckStr[i + j])
+					{
+						n_FoundFlag	= 0;
+						break;
+					}
+				}
+			}
+			
+			if (n_FoundFlag)
+			{
+				break;
+			}
+		}
+		
+		if (n_FoundFlag)
+		{
+			printf("%s\n", s_CheckStr);
+		}
+	}
+	
+	return 0;
 }
 ```
 
@@ -4413,6 +4954,33 @@ String1 String2
 
 ```
 String1
+```
+
+### 结构体 (已有类型的组合体)
+
+将同一对象的不同属性打包成一种**结构**存储。下面是一个结构体定义的示例:
+
+```C++
+struct Person
+{
+    char			SN[13];		// SN stands for Serial Number.
+    char			name[10];	// name stands for Student's name.
+    bool			gender;		// 1 for Male, 0 for Female.
+    unsigned char	height;		// Accept integers ranged from 0-255, unit: Centimeter
+    unsigned short	weight;		// Accept integers ranged from 0-511, unit: Kilogram
+};								// Declaration
+
+Person				a;			// Definition
+Person				b = {"924106840701", "Sample", 1, 173, 70}; // Definition with Initialization
+memset(&b, 0, sizeof(b));		// Initialize Person b with all its value set to 0
+```
+
+如果需要访问或修改结构体中的成员变量的值，可以像这样进行：
+
+```C++
+Person				a;
+a.weight			= 70;
+cout << a.height << endl;
 ```
 
 ### 例题选讲
