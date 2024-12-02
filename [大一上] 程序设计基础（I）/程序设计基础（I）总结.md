@@ -1,4 +1,4 @@
-# [Updated 2024-11-27] 程序设计基础（I）总结
+# [Updated 2024-11-29] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
@@ -47,6 +47,228 @@
 [2024-11-01] 作业 [Pg. 137 - 21题]
 
 [2024-11-22] 作业 [Pg. 176 - 14题]
+
+[2024-11-29] 作业 [Pg. 213 - 14题]
+
+### 课外题目收集
+
+本栏内收录部分其他班同学问到的课外题目，不一定完整，供大家参考。
+
+#### 高精度加法
+
+**[题目描述]**
+
+输入两个正整数$x_1, x_2$，求$x_1+x_2$
+
+$(1\leq x_1, x_2 \leq 10^{99})$
+
+**[输入格式]**
+
+两个整数$x_1, x_2$，中间用一空格分隔
+
+**[输出格式]**
+
+$x_1+x_2$的值
+
+**[样例输入]**
+
+```
+9000 1000
+```
+
+**[样例输出]**
+
+```
+10000
+```
+
+---
+
+思路: 通过字符数组读入后，将其转存至整型数组中，模拟手算，因为不涉及负数判定，没有需要特判的地方。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+const int Length    = 101;
+
+void        v_String_to_Int(char s_Str[], int n_Num[]);
+inline int  n_MAX(int n_NumA, int n_NumB) {return n_NumA > n_NumB ? n_NumA : n_NumB;}
+
+int main()
+{
+    char    s_Num1[Length];
+    char    s_Num2[Length];
+    int     n_Num1[Length]      = {0};
+    int     n_Num2[Length]      = {0};
+    int     n_Result[Length]    = {0};
+    int     n_MaxLen;
+
+    cin >> s_Num1;
+    cin >> s_Num2;
+
+    n_MaxLen    = n_MAX(strlen(s_Num1), strlen(s_Num2));
+
+    v_String_to_Int(s_Num1, n_Num1);
+    v_String_to_Int(s_Num2, n_Num2);
+
+    for (int i = 0; i < n_MaxLen; i++)
+    {
+        n_Result[i]     += n_Num1[i] + n_Num2[i];
+
+        if (n_Result[i] > 9)
+        {
+            n_Result[i]     -= 10;
+            n_Result[i + 1] += 1;
+        }
+    }
+
+    if (n_Result[n_MaxLen] >= 0)
+    {
+        cout << n_Result[n_MaxLen];
+    }
+
+    for (int i = n_MaxLen - 1; i >= 0; i--)
+    {
+        cout << n_Result[i];
+    }
+
+    return 0;
+}
+
+void v_String_to_Int(char s_Str[], int n_Num[])
+{
+    int n_Length    = strlen(s_Str);
+    for (int i = 0; i < n_Length; i++)
+    {
+        n_Num[i]    = s_Str[n_Length - i - 1] - '0';
+    }
+    return;
+}
+```
+
+---
+
+#### 分数最高的学生
+
+**[题目描述]**
+
+输入若干学生信息(包括学号、姓名、C++整数成绩)，计算其中的分数最高的学生，并输出该学生的信息。若有多个学生获得C++最高成绩，则输出先输入的学生信息。
+
+**[输入格式]**
+
+依次输入若干学生信息(以学号、姓名、C++成绩为顺序)，其中学号和C++成绩是正整数。若输入的学号非$-1$，则继续输入；否则停止输入。
+
+**[输出格式]**
+
+依次输出C++成绩最高的学生的学号、姓名、C++成绩，之间用空格分隔。最后不要有多余的空格。
+
+**[样例输入]**
+
+```
+1 张三 80
+2 李四 85
+3 王二 85
+-1
+```
+
+**[样例输出]**
+
+```
+2 李四 85
+```
+
+---
+
+思路: 使用结构体存储读入的数据(其实也可以不用，只不过按老师要求要这么写)，并记录最先读到的最高成绩的同学的下标，直接输出即可。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+const int   SIZE    = 101;
+
+struct Information
+{
+    int Number;
+    string name;
+    int score;
+}I_Info[SIZE];
+
+int main()
+{
+    int     n_Cnt       = 0;
+    int     n_MaxScore  = -1;
+    int     n_MaxIndex  = 0;
+
+    while (1)
+    {
+        cin >> I_Info[n_Cnt].Number;
+
+        if (I_Info[n_Cnt].Number == -1)
+        {
+            break;
+        }
+
+        cin >> I_Info[n_Cnt].name;
+        cin >> I_Info[n_Cnt].score;
+
+        if (I_Info[n_Cnt].score > n_MaxScore)
+        {
+            n_MaxScore  = I_Info[n_Cnt].score;
+            n_MaxIndex  = n_Cnt;
+        }
+
+        n_Cnt++;
+    }
+
+    cout << I_Info[n_MaxIndex].Number << ' ' << I_Info[n_MaxIndex].name << ' ' << I_Info[n_MaxIndex].score;
+
+    return 0;
+}
+```
+
+这份代码不严谨的地方在于题目未给出可能的数据规模，所以这份代码在数据量较大时可能会发生运行错误，更好的做法是每次只记录是否有更高成绩的同学，优化后的代码如下：
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int		n_Input_Number;
+string	s_Input_Name;
+int		n_Input_Score;
+int		n_Max_Score_Number;
+string	s_Max_Score_Name;
+int		n_Max_Score;
+
+int main()
+{
+    while (1)
+    {
+        cin >> n_Input_Number;
+        
+        if (n_Input_Number == -1)
+        {
+        	break;
+		}
+		
+		cin >> s_Input_Name >> n_Input_Score;
+        
+        if (n_Input_Score > n_Max_Score)
+        {
+            n_Max_Score_Number	= n_Input_Number;
+            s_Max_Score_Name	= s_Input_Name;
+            n_Max_Score			= n_Input_Score;
+        }
+    }
+    
+    cout << n_Max_Score_Number << ' ' << s_Max_Score_Name << ' ' << n_Max_Score;
+    return 0;
+}
+```
 
 ## 课前代码练习
 
@@ -610,7 +832,7 @@ int n_SumSeg(int n_Left, int n_Right)
  	return a + b;
  }
  
- double add(double a, int b)				// <- Here, A New Defination for Double A and Int B
+ double add(double a, int b)				// <- Here, A New Definition for Double A and Int B
  {
  	return a + (double)b;
  }
@@ -1025,13 +1247,12 @@ int main()
 		if(n_Array[i] % 2)
 		{
 			n_Odd++;
+            d_Average	+= (double)n_Array[i];
 		}
 		else
 		{
 			n_Even++;
 		}
-		
-		d_Average	+= double(n_Array[i]);
 	}
 	
 	cout << "Total Odd Number: " << n_Odd << endl;
@@ -2488,7 +2709,7 @@ int add(int a, float b);
 
 *声明了该函数，并不代表这个函数就存在。*
 
-#### 函数的实现 / 定义(Defination)
+#### 函数的实现 / 定义(Definition)
 
 我们还是以两数加和的函数为例。
 
@@ -2536,7 +2757,7 @@ int main()
 	return 0;
 }
 
-bool is_Prime(int n_Check)		// Function Defination
+bool is_Prime(int n_Check)		// Function Definition
 {
 	if (!(n_Check % 2))
 	{
@@ -2585,7 +2806,7 @@ int main()
 	return 0;
 }
 
-bool is_Prime(int n_Check)		// Function Defination
+bool is_Prime(int n_Check)		// Function Definition
 {
 	if (!(n_Check % 2))
 	{
@@ -2643,7 +2864,7 @@ int main()
 	return 0;
 }
 
-bool is_Prime(int n_Check)		// Function Defination
+bool is_Prime(int n_Check)		// Function Definition
 {
 	if (!(n_Check % 2))
 	{
@@ -2705,7 +2926,7 @@ int main()
 	return 0;
 }
 
-bool is_Prime(int n_Check)			// Function Defination
+bool is_Prime(int n_Check)			// Function Definition
 {
 	if (!(n_Check % 2))
 	{
@@ -4981,6 +5202,414 @@ memset(&b, 0, sizeof(b));		// Initialize Person b with all its value set to 0
 Person				a;
 a.weight			= 70;
 cout << a.height << endl;
+```
+
+### 枚举和内存对齐
+
+对于一种特定属性，可以通过“枚举”列举出其所有可能取到的情况，用来代替之前我们通过```bool gender; ```这样代指的情况，可以理解```enum```指定了一种新的变量类型，其值域空间**仅**为后续列出的变量索引。
+
+如果不特别指定枚举所代表的索引值，那么枚举中变量的索引默认从0开始，否则从第一个代表的值开始赋值，后续的索引依次+1.
+
+让我们来看这样一段代码：
+
+```c++
+#include <iostream>
+using namespace std;
+
+typedef	unsigned char	uint_8 ;
+typedef unsigned short	uint_16;
+typedef unsigned int	uint_32;
+
+enum	Gender
+{
+    Male, Female, Others
+};
+
+struct	Student
+{
+    char	StuID[20];		// 20 Bytes
+	char	Name[20];		// 20 Bytes
+	uint_8	Year;			// 1 Byte
+	Gender	Gend;			// 4 Bytes
+	float	Height;			// 4 Bytes
+	float	Weight;			// 4 Bytes
+	int		Score;			// 4 Bytes
+};
+
+int main()
+{
+    cout << sizeof(Student) << endl;
+    return 0;
+}
+```
+
+运行这段程序，根据我们在代码中的注释应该输出的是
+
+$20 + 20 + 1 + 4 + 4 + 4 + 4 = 57 (Bytes)$
+
+但实际输出的结果是：
+
+```
+60
+```
+
+为什么会这样呢？
+
+这里展示的特性是“内存对齐”。在无特别说明时，```struct```类型申请的内存默认按$4$个字节对齐，所以说我们虽然申请了$57$个字节的内存，但实际上得到的就是$60$个字节的内存。
+
+如果我们不想要这样**浪费**内存，可以通过预编译指令表示字节对齐的数量。
+
+```C++
+#include <iostream>
+using namespace std;
+
+#pragma pack(1)				// Set to 1 Byte
+
+typedef	unsigned char	uint_8 ;
+typedef unsigned short	uint_16;
+typedef unsigned int	uint_32;
+
+enum	Gender
+{
+    Male, Female, Others
+};
+
+struct	Student
+{
+    char	StuID[20];		// 20 Bytes
+	char	Name[20];		// 20 Bytes
+	uint_8	Year;			// 1 Byte
+	Gender	Gend;			// 4 Bytes
+	float	Height;			// 4 Bytes
+	float	Weight;			// 4 Bytes
+	int		Score;			// 4 Bytes
+};
+
+int main()
+{
+    cout << sizeof(Student) << endl;
+    return 0;
+}
+
+#pragma pack()				// Reset to 4 Bytes (default)
+```
+
+这样输出的结果就是我们需要的一点都不浪费内存的:
+
+```
+57
+```
+
+结合之前我们学习的结构体和函数，我们可以通过这样的代码练习：
+
+```C++
+#include <iostream>
+using namespace std;
+
+typedef	unsigned char	uint_8 ;
+typedef	unsigned short	uint_16;
+typedef unsigned int	uint_32;
+
+
+enum	Gender
+{
+	Male, Female, Others
+};
+
+struct	Student
+{
+	char	StuID[20];
+	char	Name[20];
+	uint_8	Year;
+	Gender	Gend;
+	float	Height;
+	float	Weight;
+	int		Score;
+};
+
+void	v_StuPrint(Student & Stu);
+
+int main()
+{
+	Student	Stu_A	= {"924106840701", "Sample", 20, Male, 60.1, 173.0, 59};
+	
+	v_StuPrint(Stu_A);
+	
+	return 0;
+}
+
+void	v_StuPrint(Student & Stu)
+{
+	cout << Stu.StuID << endl
+		<< Stu.Name << endl
+		<< (int)Stu.Year << endl
+		<< Stu.Gend << endl
+		<< Stu.Height << endl
+		<< Stu.Weight << endl
+		<< Stu.Score << endl;
+	return;
+}
+```
+
+运行的结果是：
+
+```
+924106840701
+Sample
+20
+0
+60.1
+173
+59
+```
+
+再次强调，不允许直接将字符串常量赋给字符数组。
+
+```C++
+// THE CODE BELOW IS NOT ALLOWED, IT WILL RESULT IN COMPILE ERROR!
+Stu.StuID	= "924106840701";
+```
+
+结构体数组与数组用法类似，此处不再多讲。
+
+### typedef关键字
+
+在之前我们已经提到过，```typedef```关键字可以为变量新增一个别名，可以用这样的别名来声明和使用该类变量，主要是用于将变量名简化。
+
+例如之前我们讲的内容：
+
+```C++
+typedef	unsigned char	uint_8 ;
+typedef	unsigned short	uint_16;
+typedef unsigned int	uint_32;
+```
+
+### using关键字
+
+用于声明所使用的命名空间，也就是说这是**谁家的**函数。
+
+````C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    cout << "Hello World" << endl;
+    return 0;
+}
+````
+
+如果不写```using namespace std;```为实现相同的效果，需要像这样书写代码。
+
+```C++
+#include <iostream>
+
+int main()
+{
+    std::cout << "Hello World" << std::endl;
+    return 0;
+}
+```
+
+### 变量的位域
+
+下面这段代码声明的是一个结构体中将一个字节拆分成多个变量来使用的过程。
+
+```C++
+#include <iostream>
+using namespace std;
+
+typedef	unsigned char	uint_8;
+
+struct Switcher
+{
+    uint_8	s1 : 1;					// s1 only uses 1 bit in a uint_8
+    uint_8	s2 : 1;					// s2 only uses 1 bit in a uint_8
+    uint_8	s3 : 1;					// s3 only uses 1 bit in a uint_8
+    uint_8	s4 : 1;					// s4 only uses 1 bit in a uint_8
+    uint_8	s5 : 1;					// s5 only uses 1 bit in a uint_8
+    uint_8	s6 : 1;					// s6 only uses 1 bit in a uint_8
+    uint_8	s7 : 1;					// s7 only uses 1 bit in a uint_8
+    uint_8	s8 : 1;					// s8 only uses 1 bit in a uint_8
+};
+
+int main()
+{
+    Switcher	s	= {0, 0, 0, 0, 0, 0, 0, 1};
+    cout << (int)s.s8 << endl;
+    cout << sizeof(s) << endl;
+    return 0;
+}
+```
+
+运行这段代码输出的结果是：
+
+```
+1
+1
+```
+
+8个分别占一位的变量共用一个```uint_8```类型的内存，所以一共占用的内存为1字节。
+
+### 指针
+
+指针是一个数据类型，同时也是一个变量类型，它用于存储变量的地址，其声明方式如下。
+
+```C++
+Variable_Type	*			Pointer_Name;
+^指向的变量类型	^表示是个指针	^指针的名称
+```
+
+例如：
+
+```C++
+int			n_A;
+float		f_B;
+bool		b_C;
+char		c_D;
+
+int		*	p_n_A;			
+// Integer Pointer p_n_A, refering to an [address] which [stores] value typeof int
+float	*	p_f_B;
+bool	*	p_b_C;
+char	*	p_c_D;
+
+p_n_A		= &n_A;
+// Getting Variable n_A's address and store it in p_n_A
+p_f_B		= &f_B;
+p_b_C		= &b_C;
+p_c_D		= &c_D;
+```
+
+在使用指针的过程中请注意：
+
+**<font color =  red>不允许直接对指针进行赋值，也就是说，不允许访问未被允许访问的变量。</font>**
+
+若需将指针初始化为空指针，请使用如下的代码。
+
+```C++
+// You can use this in Both C and C++
+int	*	p_n_A	= NULL;
+// Or You can use this code below in C++
+int *	p_n_A	= nullptr;
+```
+
+或者将指针初始化为已有变量的地址。
+
+```C++
+int	a		= 10;
+int	*	pa	= &a;
+
+a			+= 1;
+*pa			+= 1;
+*(&a)		+= 1;
+// The three lines of code shown above have the same function
+```
+
+对于数组变量而言，可以通过指针向后移动以实现遍历数组的效果，注释中的代码与其之前的那一行代码效果相同。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int		b[10]	= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+int	*	pb	= b;
+// int *	pb = &b[0];
+
+int main()
+{
+	for (int i = 0; i < 10; i++)
+	{
+	    cout << *(pb + i) << endl;
+        // cout << *(b + i) << endl;
+        // cout << b[i] << endl;
+        // cout << *(&b[i]) << endl;
+	}
+    return 0;
+}
+```
+
+这段代码的运行结果是：
+
+```
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+```
+
+那么，我们之前写的操作数组的函数，还可以像这样实现。
+
+```C++
+// Original
+void	v_Array_Show(const int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << a[i] << endl;
+    }
+    return;
+}
+// Use Pointer
+void	v_Array_Show(const int * a, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << *(a + i) << endl;
+    }
+    return;
+}
+```
+
+接下来是指向函数的指针。
+
+```C++
+#include <iostream>
+using namespace std;
+
+void	v_SampleFunction(const int * a, int n);
+
+const int	SIZE	= 10;
+const int	a[SIZE]	= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+int main()
+{
+    void	(* v_p_FunctionPointer)(const int *, int)	= v_SampleFunction;
+    
+    v_p_FunctionPointer(a, SIZE);
+    
+    return 0;
+}
+
+void	v_SampleFunction(const int * a, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << *(a + i) << endl;
+    }
+    return;
+}
+```
+
+程序运行的结果为：
+
+```
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
 ```
 
 ### 例题选讲
