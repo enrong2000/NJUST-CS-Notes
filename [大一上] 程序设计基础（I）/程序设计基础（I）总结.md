@@ -1,10 +1,16 @@
-# [Updated 2024-11-29] 程序设计基础（I）总结
+# [Updated 2024-12-11] 程序设计基础（I）总结
 
 本文档是对2024年10月09日(星期三)及之后 蔡云飞老师 程序设计基础（I）课程的总结，仅供参考。
 
 **<font color =red>[强调] 学习是自己的事情，上课之前请务必预习，上课之后请保持复习的习惯。如果出现两次课前追问答不上的情况，会有不良后果。</font>**
 
 [TOC]
+
+## 期末考试
+
+考试分为编程考试和期末考试2场，全部上机考试，所用系统为上节课让同学们训练的系统。
+
+[点击这里进入系统](http://program.njust.edu.cn)
 
 ## 课后代码练习
 
@@ -1897,6 +1903,1050 @@ int main()
 }
 ```
 
+### 2024-12-04 上机测验(1) 求和问题
+
+**[题目描述]**
+
+给定两个数$a, n$, 其中$1\leq a \leq 9, 1 \leq n \leq 18$，求$a + aa + aaa + \cdots + a\dots a(一共n个a)$
+
+**[输入格式]**
+
+两个整数$a, n$，中间用一个空格隔开
+
+**[输出格式]**
+
+一个整数，该表达式的和
+
+**[样例输入]**
+
+```
+2 5
+```
+
+**[样例输出]**
+
+```
+24690
+```
+---
+
+思路: 由于本题数据范围不会超过```long long```的最大表示范围，可以用```long long```存储中间变量，随后进行加和得到答案，也可以通过高精度加法模拟手算的过程。
+
+先看手算的过程，即先算出每一位的值，再逐位向前进位：
+
+```C++
+#include <cstdio>
+
+const int	SIZE	= 30;
+
+int			n_Data[SIZE];
+int			n_Input;
+int			n_Length;
+
+int main()
+{
+	scanf("%d %d", &n_Input, &n_Length);
+	
+	for (int i = 1; i <= n_Length; i++)
+	{
+		n_Data[i]	= n_Input * (n_Length + 1 - i);
+	}
+	
+	for (int i = 1; i <= n_Length; i++)
+	{
+		if (n_Data[i] / 10)
+		{
+			n_Data[i + 1]	+= n_Data[i] / 10;
+			n_Data[i]		%= 10;
+		}
+	}
+	
+	while (n_Data[n_Length + 1] / 10)
+	{
+		n_Data[n_Length + 1]	+= n_Data[n_Length] / 10;
+		n_Data[n_Length]		%= 10;
+		n_Length++;
+	}
+	
+	if (n_Data[n_Length + 1])
+	{
+		n_Length++;
+	}
+	
+	for (int i = n_Length; i >= 1; i--)
+	{
+		printf("%d", n_Data[i]);
+	}
+	
+	return 0;
+}
+```
+
+答案的做法是直接用```long long```存储中间变量和答案。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    long long a, n, temp, ans;
+    tmep	= 0;
+    ans		= 0;
+    
+    cin >> a >> n;
+    
+    for (int i = 1; i <= n; i++)
+    {
+        temp	= 0;
+        for (int j = 1; j <= i; j++)
+        {
+            temp	*= 10;
+            temp	+= a;
+        }
+        
+        ans		+= temp;
+    }
+    
+    cout << ans;
+    return 0;
+}
+```
+
+---
+
+### 2024-12-04 上机测验(2) 井底之蛙
+
+**[题目描述]**
+
+有一只在井底的青蛙，井的高度为$Height(0\leq Height\leq 1000)$，这只青蛙每天能向上跳$Up(0 \leq Up \leq 1000)$，如果当天未能到达井口，则晚上会向下滑$Down(0\leq Down < Up)$，问青蛙多少天能从井中跳出？
+
+**[输入格式]**
+
+一行，三个整数$Height, Up, Down$，每个整数之间用空格分隔
+
+**[输出格式]**
+
+一个整数，这只青蛙从井口跳出需要的天数。
+
+**[样例输入1]**
+
+```
+4 3 1
+```
+
+**[样例输出1]**
+
+```
+2
+```
+
+**[样例输入2]**
+
+```
+4 5 3
+```
+
+**[样例输出2]**
+
+```
+1
+```
+---
+
+思路: 使用```while```循环，每次向上跳一次，天数+1，并判断是否出井，未出井则下滑，继续循环。
+
+```C++
+#include <cstdio>
+
+int	n_Height;
+int	n_Cur;
+int	n_Ans;
+int	n_Up;
+int	n_Down;
+
+int main()
+{
+	scanf("%d %d %d", &n_Height, &n_Up, &n_Down);
+	
+	while (n_Cur < n_Height)
+	{
+		n_Cur	+= n_Up;
+		n_Ans++;
+		
+		if(n_Cur >= n_Height)
+		{
+			break;
+		}
+		
+		n_Cur	-= n_Down;
+	}
+	
+	printf("%d", n_Ans);
+	
+	return 0;
+}
+```
+
+### 2024-12-04 上机测验(3) 三角数
+
+**[题目描述]**
+
+三角数是这样的一串数：$1, 3, 6, 10, 15, 21, 28, 36, 45,\cdots$，给定一个数$n$，求不小于$n$的最小的三角数。
+
+**[输入格式]**
+
+一个整数$n$
+
+**[输出格式]**
+
+一个整数，不小于$n$的最小的三角数
+
+**[样例输入]**
+
+```
+8
+```
+
+**[样例输出]**
+
+```
+10
+```
+
+---
+
+思路: 通过循环遍历是否有符合条件的三角数，如有，则输出。
+
+```C++
+#include <cstdio>
+
+int	n_Ans;
+int	n_Cur;
+int	n_Input;
+
+int main()
+{
+	scanf("%d", &n_Input);
+	
+	while (n_Ans < n_Input)
+	{
+		n_Ans	+= n_Cur;
+		n_Cur++;
+	}
+	
+	printf("%d", n_Ans);
+	return 0;
+}
+```
+
+---
+
+### 2024-12-04 上机测验(4) 菱形
+
+**[题目描述]**
+
+给定一个数$n$，输出边长为$n$的菱形，如样例所示，行末不要有多余空格。
+
+**[输入格式]**
+
+一个数$n(1\leq n\leq 50)$
+
+**[输出格式]**
+
+边长为$n$的菱形
+
+**[样例输入]**
+
+```
+6
+```
+
+**[样例输出]**
+
+```
+     *
+    ***
+   *****
+  *******
+ *********
+***********
+ *********
+  *******
+   *****
+    ***
+     *
+```
+
+---
+
+思路: 使用循环，按照要求输出即可。
+
+```C++
+#include <cstdio>
+
+int	n_TotLine;
+
+int main()
+{
+	scanf("%d", &n_TotLine);
+	
+	for (int i = 1; i <= n_TotLine; i++)
+	{
+		for (int j = 1; j <= n_TotLine - i; j++)
+		{
+			printf(" ");
+		}
+		
+		for (int j = 1; j <= 2 * i - 1; j++)
+		{
+			printf("*");
+		}
+		
+		printf("\n");
+	}
+	
+	for (int i = n_TotLine - 1; i >= 1; i--)
+	{
+		for (int j = 1; j <= n_TotLine - i; j++)
+		{
+			printf(" ");
+		}
+		
+		for (int j = 1; j <= 2 * i - 1; j++)
+		{
+			printf("*");
+		}
+		
+		if (i != 1)
+		{
+			printf("\n");
+		}
+	}
+	return 0;
+}
+```
+
+---
+
+### 2024-12-04 上机测验(5) 孪生素数
+
+**[题目描述]**
+
+当两个素数相差为$2$时，我们可将这两个素数视作孪生素数，例如$(3, 5),(5, 7), (11,13)$。给定一个数$n$，找出不小于$n$的最小孪生素数对。
+
+**[输入格式]**
+
+一个数$n$
+
+**[输出格式]**
+
+两个整数，中间用一空格隔开
+
+**[样例输入]**
+
+```
+8
+```
+
+**[样例输出]**
+
+```
+11 13
+```
+
+---
+
+思路: 从输入的数开始向后找，如果找到的数和比它大2的数均为素数，则直接输出。
+
+```C++
+#include <cstdio>
+
+int		n_Num;
+
+bool	is_Prime(int n_Check);
+
+int main()
+{
+	scanf("%d", &n_Num);
+	
+	while (1)
+	{
+		if (is_Prime(n_Num) && is_Prime(n_Num + 2))
+		{
+			printf("%d %d", n_Num, n_Num + 2);
+			break;
+		}
+		
+		n_Num++;
+	}
+	
+	return 0;
+}
+
+bool	is_Prime(int n_Check)
+{
+	if (n_Check == 1)
+	{
+		return false;
+	}
+	
+	if (n_Check == 2)
+	{
+		return true;
+	}
+	
+	if (!(n_Check % 2))
+	{
+		return false;
+	}
+	
+	for (int i = 3; i <= n_Check / i; i++)
+	{
+		if (!(n_Check % i))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+```
+
+### 2024-12-06 上机测验(1) 打印空心菱形
+
+**[题目描述]**
+
+华老师给了你们一个打印任务，让你们打印边长为n的空心菱形。
+
+**[输入格式]**
+
+输入一行一个整数n（1<=n<=50)。
+
+**[输出格式]**
+
+打印边长为N的空心菱形（空心菱形的打印形式见样例），每行均以'\*'结尾，每行的’\*’之前如果需要用空格补齐对齐，’\*’之后不要有多余的空格。
+
+**[样例输入]**
+
+```
+6
+```
+
+**[样例输出]**
+
+```
+     *
+    * *
+   *   *
+  *     *
+ *       *
+*         *
+ *       *
+  *     *
+   *   *
+    * *
+     *
+```
+
+---
+
+思路: 根据题目要求进行输出即可，使用循环。
+
+```C++
+#include <cstdio>
+
+int n_TotLine;
+
+int main()
+{
+	scanf("%d", &n_TotLine);
+	
+	for (int i = 1; i <= n_TotLine; i++)
+	{
+		for (int j = 1; j < n_TotLine + 1 - i; j++)
+		{
+			printf(" ");
+		}
+		
+		for (int j = 1; j <= i * 2 - 1; j++)
+		{
+			if (j == 1 || j == i * 2 - 1)
+			{
+				printf("*");
+			}
+			
+			else
+			{
+				printf(" ");
+			}
+		}
+		
+		printf("\n");
+	}
+	
+	for (int i = n_TotLine - 1; i >= 1; i--)
+	{
+		for (int j = 1; j < n_TotLine + 1 - i; j++)
+		{
+			printf(" ");
+		}
+		
+		for (int j = 1; j <= i * 2 - 1; j++)
+		{
+			if (j == 1 || j == i * 2 - 1)
+			{
+				printf("*");
+			}
+			
+			else
+			{
+				printf(" ");
+			}
+		}
+		
+		printf("\n");
+	}
+	
+	return 0;
+}
+```
+
+平台上的题解代码如下：
+
+```C++
+#include <iostream>
+#include <iomanip>
+using namespace std;
+int main()
+{
+	int n,absi;
+	cin >> n;
+	for(int i= -n + 1; i < n; i++)
+    {
+		absi	= i > 0 ? i : -i;
+		cout << setw(absi + 1) << '*';
+		if(absi < n-1)
+			cout << setw(2 * n - 2 * absi - 2) << '*';
+		cout << endl;		
+	}
+	return 0;
+}
+```
+
+---
+
+### 2024-12-06 上机测验(2) 相差1的整数对
+
+**[题目描述]**
+
+先输入一个正整数n(2到100之间)，再输入n个整数(可重复)，计算其中有多少对的整数之间相差1。
+
+**[输入格式]**
+
+先输入要处理的整数的个数n(2<=n<=100)，再输入n个整数，并用空格分开。每个整数大小<=1e5
+
+**[输出格式]**
+
+一个整数，表示n个整数中有多少对的整数相差1。
+
+**[样例输入]**
+
+```
+5
+4 6 7 2 5
+```
+
+**[样例输出]**
+
+```
+3
+```
+
+**[提示]**
+
+采用整数数组
+
+---
+
+思路: 使用```<algorithm>```库中的sort函数对数组进行排序，对于已经从小到大排好的数组，每一个数组元素向后找比它大1的元素，找到就让答案+1，找完后输出答案。
+
+```C++
+#include <cstdio>
+#include <algorithm>
+using namespace std;
+
+const int	SIZE	= 101;
+
+int			n_TotNum;
+int			n_Data[SIZE];
+int			n_Ans;
+
+int main()
+{
+	scanf("%d", &n_TotNum);
+	
+	for (int i = 0; i < n_TotNum; i++)
+	{
+		scanf("%d", &n_Data[i]);
+	}
+	
+	sort(n_Data, n_Data + n_TotNum);
+	
+	for (int i = 0; i < n_TotNum; i++)
+	{
+		for (int j = i + 1; j < n_TotNum; j++)
+		{
+			if (n_Data[j] - n_Data[i] == 1)
+			{
+				n_Ans++;
+				continue;
+			}
+		}
+	}
+	
+	printf("%d", n_Ans);
+	return 0;
+}
+```
+
+平台上的题解代码如下：
+
+```C++
+#include <iostream>
+using namespace std;
+int main()
+{
+	int n,i,a[100],count=0;
+	cin >> n;
+    for(i = 1;i <= n; i++) cin >> a[i];
+	for(i = 1;i <= n; i++)
+		for(int j = i + 1;j <= n; j++)
+		    if(a[i] - a[j] == 1 || a[i] - a[j] == -1)
+                count++;
+    cout<<count;
+    return 0;
+}
+```
+
+---
+
+### 2024-12-06 上机测验(3) 矩阵乘法
+
+**[题目描述]**
+
+小华在学习矩阵相乘,现在老师给了小华一个M\*N的矩阵A和一个N\*M的矩阵B,让小华计算出这两个矩阵相乘后的结果.
+
+**[输入格式]**
+
+第一行输入一个整数M和一个整数N.表示矩阵A的大小. 接下来M行,每行有N个整数.第i行第j列的数字表示了矩阵A的第i行第j列的数字. 在接下来N行,每行M个数字,每个数字范围是[0,100000],表示了矩阵B. (1 <= N <= 5，1 <= M <= 5)
+
+**[输出格式]**
+
+首先输出提示信息A\*B，再输出A\*B的结果矩阵,输出格式如下: 矩阵的每行占一行，整数之间都有一个空格,记住,每行最后一个整数后面没有空格.最后输出提示信息B\*A后输出B\*A的结果矩阵，输出格式同上。
+
+**[样例输入]**
+
+```
+3 4
+1 2 3 4
+2 2 3 1
+5 4 2 3
+6 3 2
+2 8 1
+6 9 5
+2 4 6
+```
+
+**[样例输出]**
+
+```
+A*B
+36 62 43
+36 53 27
+56 77 42
+B*A
+22 26 31 33
+23 24 32 19
+49 50 55 48
+40 36 30 30
+```
+
+---
+
+思路：首先需要了解矩阵乘法的意义。
+
+$(AB)_{ij} = \sum_{k = 1}^{n}a_{ik}b_{kj}=a_{i1}b_{1j} + a_{i2}b_{2j}+\cdots+a_{in}b_{nj}$
+
+注意题目给出的数据范围，在极限数据情况下，即两个$5\times5$的值均为$100000$的矩阵相乘，其结果的数值会超出```int```的表示范围，应使用```long long```存储矩阵的数据及答案。
+
+```C++
+#include <cstdio>
+
+const int	SIZE	= 6;
+
+long long	n_A;
+long long	n_B;
+long long	n_Matrix1[SIZE][SIZE];
+long long	n_Matrix2[SIZE][SIZE];
+long long	n_Result1[SIZE][SIZE];
+long long	n_Result2[SIZE][SIZE];
+
+int main()
+{
+	scanf("%lld %lld", &n_A, &n_B);
+	
+	for (int i = 1; i <= n_A; i++)
+	{
+		for (int j = 1; j <= n_B; j++)
+		{
+			scanf("%lld", &n_Matrix1[i][j]);
+		}
+	}
+	
+	for (int i = 1; i <= n_B; i++)
+	{
+		for (int j = 1; j <= n_A; j++)
+		{
+			scanf("%lld", &n_Matrix2[i][j]);
+		}
+	}
+	
+	printf("A*B\n");
+	
+	for (int i = 1; i <= n_A; i++)
+	{
+		for (int j = 1; j <= n_A; j++)
+		{
+			for (int m = 1; m <= n_B; m++)
+			{
+				n_Result1[i][j]	+= n_Matrix1[i][m] * n_Matrix2[m][j];
+			}
+			
+			printf("%lld", n_Result1[i][j]);
+			
+			if (j != n_A)
+			{
+				printf(" ");
+			}
+		}
+		
+		printf("\n");
+	}
+	
+	printf("B*A\n");
+	
+	for (int i = 1; i <= n_B; i++)
+	{
+		for (int j = 1; j <= n_B; j++)
+		{
+			for (int m = 1; m <= n_A; m++)
+			{
+				n_Result2[i][j]	+= n_Matrix1[m][j] * n_Matrix2[i][m];
+			}
+			
+			printf("%lld", n_Result2[i][j]);
+			
+			if (j != n_B)
+			{
+				printf(" ");
+			}
+		}
+		printf("\n");
+	}
+	
+	return 0;
+}
+```
+
+平台上的题解代码如下：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	long long a[6][6], b[6][6];
+	int m, n, x, y;
+	cin >> m >> n;
+	y	= m;
+    x	= n;
+	for(int i = 0; i < m; i++)
+    {
+		for(int j = 0; j < n; j++)
+		cin >> a[i][j];
+	}
+	for(int i = 0; i < x; i++)
+	{
+		for(int j = 0; j < y; j++)
+		cin >> b[i][j];
+	}
+	cout << "A*B" << endl;
+	for(int i = 0; i < m; i++)
+	{
+		for(int j = 0; j < y; j++)
+		{
+		    long long sum=0;
+		    for(int k = 0; k < n; k++)
+			{
+		        sum+=a[i][k]*b[k][j];
+	        }
+	        cout<<sum<<" ";
+	    }
+	    cout<<endl;
+    }
+    cout<<"B*A"<<endl;
+	for(int i = 0; i < x; i++)
+	{
+		for(int j = 0; j < n; j++)
+		{
+		    long long sum = 0;
+		    for(int k = 0; k < y; k++)
+			{
+		        sum+=b[i][k]*a[k][j];
+	        }
+	        cout << sum << " ";
+	    }
+        cout<<endl;
+    }
+    return 0;
+}
+```
+
+---
+
+### 2024-12-06 上机测验(4) 逐单词逆序输出字符串
+
+**[题目描述]**
+
+输入一句英文，请你反转这句英文中每个单词的字符顺序，但保留空格和单词的顺序，这句英文长度不超过1000，前后可能有空格，其中的单词可能由多个空格分隔。
+
+**[输入格式]**
+
+输入一条英文句子，即一个字符串。该字符串前后可能有空格，字符串中的空格也可能连续，字符串的长度不超过1000。
+
+**[输出格式]**
+
+输出一条字符串，该字符串将所输入的字符串中每个单词反转字符顺序，但保留空格和单词的顺序。
+
+**[样例输入]**
+
+```
+I'm in Nanjing University of Science and Technology.
+```
+
+**[样例输出]**
+
+```
+m'I ni gnijnaN ytisrevinU fo ecneicS dna .ygolonhceT
+```
+
+---
+
+思路: 如果不考虑单词之间的空格，原则上是可以通过逐个读入单词并逐个逆序输出得到结果。而本题目要求保留开头、结尾和单词之间的全部空格(单词之间可能不只1个空格)，所以只能将完整字符串读入后，原封不动输出空格，并对找到的单词逐个进行逆序输出。
+
+```C++
+#include <cstdio>
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+const int	SIZE	= 1001;
+int			n_Length;
+int			n_StartPos;
+int			n_EndPos;
+char		s_Str[SIZE];
+
+int main()
+{
+	cin.getline(s_Str, SIZE);
+	
+	n_Length	= strlen(s_Str);
+	n_StartPos	= 0;
+	
+	while (n_StartPos < n_Length)
+	{
+		while (s_Str[n_StartPos] == ' ')
+        // Handle Spaces
+		{
+			printf(" ");
+			n_StartPos++;
+		} 
+		
+		if (!s_Str[n_StartPos])
+        // Check if Reach the End of String
+		{
+			break;
+		}
+		
+		n_EndPos	= n_StartPos;
+        // We Find a Word
+		
+		while (s_Str[n_EndPos] != ' ' && s_Str[n_EndPos]) 
+        // Check the End Position of that word
+		{
+			n_EndPos++;
+		}
+		
+		n_EndPos--;
+		
+		for (int i = n_EndPos; i >= n_StartPos; i--)
+        // Output Reversed Word
+		{
+			printf("%c", s_Str[i]);
+		}
+		
+		n_StartPos	= n_EndPos + 1;
+        // Go on checking the Next Space
+	}
+	
+	return 0;
+}
+```
+
+平台上的题解代码如下：
+
+(思路类似，不过这份代码是将找到的单词先在字符串中逆序，再在最后统一输出)
+
+```C++
+#include<iostream>
+using namespace std;
+
+int main()
+{
+	string s;
+	getline(cin, s);
+	int begin, end;
+	int n = s.length();
+	for(int i = 0;i < n;)
+    {
+		while(s[i] == ' ' && i < n)
+            i++;
+		if(i>=n)
+            break;
+		begin = i;
+		while(s[i] != ' ' && i < n)
+            i++;
+		end=i;
+		for(int k = begin;k<=(begin+end-1)/2;k++)
+            swap(s[k],s[end+begin-k-1]);
+	}
+	cout << s;
+	return 0;
+}
+```
+
+---
+
+### 2024-12-06 上机测验(5) 同构数
+
+**[题目描述]**
+
+同构数是这样一组数：它出现在平方数的右边。例如；5是25右边的数,25是625右边的数，5和25都是同构数。
+
+编写程序，找出1至n之间的全部同构数。
+
+**[输入格式]**
+
+输入正整数n
+
+**[输出格式]**
+
+输出n以内的全部同构数（包括n）
+
+每行输出一个数
+
+**[样例输入]**
+
+```
+50
+```
+
+**[样例输出]**
+
+```
+1
+5
+6
+25
+```
+
+---
+
+思路: 对于给定的$n$，从$1$到$n$分别求该数的平方，随后比对该数和其平方的对应末位是否相等，如果相等，则输出答案。
+
+```C++
+#include <cstdio>
+
+int	n_Range;
+int	n_Flag;
+int	n_Check;
+int	n_CheckSum;
+
+int main()
+{
+	scanf("%d", &n_Range);
+	
+	for (int i = 1; i <= n_Range; i++)
+	{
+		n_CheckSum	= i * i;
+		n_Check		= i;
+		n_Flag		= 1;
+		
+		while (n_Check)
+		{
+			if (n_Check % 10 == n_CheckSum % 10)
+            // Check the Number
+			{
+				n_Check		/= 10;
+				n_CheckSum	/= 10;
+				continue;
+			}
+			
+			n_Flag	= 0;
+			break;
+		}
+		
+		if (n_Flag)
+		{
+			printf("%d\n", i);
+		}
+	}
+	return 0;
+}
+```
+
+平台上的题解代码如下：
+
+(比对数值的方式有些许不同，这份代码的解法是先找到$m$的位数，然后对$m * m$取模，看是否相同)
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int m, i, k, j, n;
+    cin >> n;
+    for(m = 1; m <= n; m++)
+    {
+        i = 1;
+        k = m;
+        j = m * m;
+        while (k != 0)
+        {
+            k /= 10;
+            i *= 10;
+        }
+        if(j % i == m)
+        {
+            cout<<m<<endl;
+        }
+    }
+    return 0;
+}
+```
+
 ## 上课内容总结
 
 本部分是对上课内容的简单总结，可能会有遗漏，欢迎指出。
@@ -3490,6 +4540,18 @@ void swap(int &a, int &b)
 ```
 3 2
 ```
+
+引用的本质就是指针，解决指针的间接访问的问题。
+
+```C++
+int i;
+int & refi = i;	// It Should be initialized upon declaration, Always used when declaring a function.
+
+int & ref = * new int;
+delete & ref;
+```
+
+详细内容请见之前的总结。
 
 #### 外部变量(extern关键字)
 
@@ -5611,6 +6673,370 @@ void	v_SampleFunction(const int * a, int n)
 8
 9
 ```
+
+#### 理解指针
+
+```C++
+pa[i][j]				// Normal 2D Array
+*(pa[i] + j)			// Same as the statement above
+*(pa + i)[j]			// Same as the Statement above
+*(*(pa + i) + j)		// The value of (the Value of Pointer pa[i] (which SHOULD BE A POINTER) + j) 
+```
+
+#### new关键字
+
+手动申请内存并将申请的首地址返回。
+
+```C++
+int * pa = new int [10000];
+```
+
+#### delete关键字
+
+将动态申请的内存释放。
+
+```C++
+delete [] pa;
+```
+
+####  通过new和delete用指针创建和删除一个二维数组
+
+源代码如下，注意理解指向指针的指针的意思。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+int main()
+{
+    char	** pa	= new char * [4];
+    memset(pa, 0, sizeof(pa) * 4);
+    
+    for (int i = 0; i < 4; i++)
+    {
+        char * pb		= new char [10];
+        pa[i]			= pb;
+        memset(pa[i], 0, sizeof(char) * 10);
+    }
+    
+    // Do Something
+    strcpy(pa[0], "Hello");
+    strcpy(pa[1], "kitty");
+    strcpy(pa[2], "Hello dog");
+    
+    for (int i = 0; i < 4; i++)
+    {
+    	cout << pa[i] << endl;
+    }
+    
+    for (int i = 0; i < 4; i++)
+    {
+        if (pa[i])
+        {
+        	delete	[] pa[i];
+            pa[i]		= NULL;
+            // pa[i]	= nullptr;
+        }
+    }
+    
+    if (pa)
+    {
+    	delete [] pa;
+        pa				= NULL;
+        //pa			= nullptr;
+    }
+    return 0;
+}
+```
+
+接下来是通过函数创建二维数组。
+
+```C++
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+void array_2dchar_init(char * * & pa, int row, int col);
+void array_2dchar_show(char * * pa, int row);
+void array_2dchar_del(char * * pa, int row);
+
+int main()
+{
+    char * * pa		= NULL;
+    
+    array_2dchar_init(pa, 4, 10);
+    strcpy(pa[0], "Hello");
+    strcpy(pa[1], "Kitty");
+    strcpy(pa[2], pa[0]);
+    strcpy(pa[3], "Dog");
+    
+    array_2dchar_show(pa, 4);
+    array_2dchar_del(pa, 4);
+    return 0;
+}
+
+void array_2dchar_init(char * * & pa, int row, int col)
+{
+    pa	= new char * [row];
+    memset(pa, 0, sizeof(pa) * row);
+    
+    for (int i = 0; i < row; i++)
+    {
+        char * pb	= new char [col];
+        pa[i]		= pb;
+        memset(pa[i], 0, sizeof(pa[i]));
+    }
+    
+    return;
+}
+
+void array_2dchar_del(char * *  pa, int row)
+{
+    for (int i = 0; i < row; i++)
+    {
+        if (pa[i])
+        {
+            delete [] pa[i];
+            pa[i]	= NULL;
+        }
+    }
+    
+    if (pa)
+    {
+        delete 		pa;
+        pa			= NULL;
+    }
+    
+    return;
+}
+
+void array_2dchar_show(char * * pa, int row)
+{
+    for (int i = 0; i < row; i++)
+    {
+        cout << pa[i] << endl;
+    }
+    return;
+}
+```
+
+对于申请内存的内容的初始化。
+
+```C++
+int * p = new int;
+*p		= 2;
+
+// The statement below is equal to the statements above.
+int * p	= new int(2);
+int * p = new int{2};
+// Same as the Statement above, Should be C++ 11 or Higher.
+
+int * q	= new int[7]{1, 2, 3, 4, 5, 6, 7};
+// Should be C++ 11 or Higher.
+```
+
+相比如下这种代码，通过```new```关键字分配内存，会更加**安全**。
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+    int a[n];
+    return 0;
+}
+```
+
+更加安全的分配方式为：
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+    
+    int * a	= new int[n];
+    
+    while (!a)
+    {
+        a	= new int[n];
+    }
+    
+    if (a)
+    {
+        delete[] a;
+        a	= nullptr;
+    }
+    
+    return 0;
+}
+```
+
+需要注意的是，类型需要一致。
+
+```C++
+struct point
+{
+    double x, y;
+};
+
+int main()
+{
+    point ** p1		= new point * [3];
+//  point (*p2)[3]	= new point[2][3];
+    
+    if (p)
+    {
+        delete [] p;
+        p			= nullptr;
+    }
+    
+    return 0;
+}
+```
+
+同时，对于动态分配的内存，需要在不使用时进行释放，且在释放前，请不要改变通过```new```获得的地址，否则无法正确回收内存以致内存泄漏。
+
+例题：
+
+```C++
+int n = 2;
+int * a[]	= {new int{n}, new int[2 * n]{4, 5, 6}, new int[2 * n]{1, 2, 3}};
+
+// a[1][3]	= 0
+```
+
+#### 指向结构体的指针
+
+主要要求了解如何通过指向结构体的指针输出其成员值。
+
+```C++
+#include <iostream>
+using namespace std;
+
+struct Person
+{
+    char	s_SN[21];
+    char	s_Name[21];
+    int		n_Year;
+    int		n_Gender;
+    double	d_Weight;
+    double	d_Height;
+    int		n_Score;
+};
+
+int main()
+{
+    Person	One	= {"1234", "Kitty", 20, 0, 50.1, 174.1, 90};
+    
+    cout << One.s_Name;
+    
+    Person	* Pa	= & One;
+    strcpy(Pa -> s_Name, "jack");
+    cout<< Pa -> s_Name << endl;
+    
+    return 0;
+}
+```
+
+### const 指针
+
+对于```const```指针而言，需要明确的是两个内容: 到底是指向的变量是常量(不可更改)，还是其指向的内存地址是常量(地址不可变动，但其所指向的内存地址中所存的值是可以改改的)
+
+```C++
+const int * p;		// A Pointer Pointing to A Constant Integer [Integer CANNOT be CHANGED]
+int const * p;		// Same as the statement above
+int * const p;		// A Pointer Pointing to A Constant Memory Address [Integer Can be CHANGED]
+```
+
+同时，注意区分这两种指针，前者是指向数组的指针，后者是指针数组。
+
+```C++
+int * p[];
+int (*p)[];
+```
+
+接下来是一段示例代码。
+
+```C++
+#include <iostream>
+using namespace std;
+
+char * cpy(char * Desti, char * Src)
+{
+	char * Desti1 = Desti;
+	
+	while (*Src)
+	{
+		*Desti1	= *Src;
+		Src++;
+		Desti1++;
+	}
+	
+    *Desti1	= '\0';
+    
+	return Desti;
+}
+
+int main()
+{
+	char s_Desti[20], s_Src[]	= "Sample String";
+	cout << cpy(s_Desti, s_Src) << endl;
+	return 0;
+}
+```
+
+这个过程中，我们在编写函数时，可能对源字符串或源数据进行更改，这是我们不希望看到的。这个时候我们在参数上加上```const```关键字，以限定其为不可变更的变量，注意下面这一段代码与上一段代码的区别。
+
+```c++
+#include <iostream>
+using namespace std;
+
+char * cpy(char * Desti, const char * Src)
+// You can change Src [Pointer], but cannot change *Src [Value]
+{
+    char * Desti1	= Desti;
+    
+    while (*Src)
+    {
+        *Desti1		= *Src;
+        Desti1++;
+        Src++;
+    }
+    
+    *Desti1	= '\0';
+    
+    return Desti;
+}
+
+int main()
+{
+    char s_Desti[20], s_Src[]	= "Sample String";
+	cout << cpy(s_Desti, s_Src) << endl;
+    return 0;
+}
+```
+
+```const```指针和非```const```指针是可以作为不同的参数对函数进行重载的，见下面几个函数重载方式。
+
+```c++
+int * Function(int * p);				// Consider this as Function 1
+int * Function(const int * p);			// Consider this as Function 2
+int * Function(const int * p);			// Consider this as Function 3
+int * Function(int * const p);			// Consider this as Function 4
+// Function 2 and Function 3 ARE COMPLETELY THE SAME
+// Funciton 1 and Function 4 Cannot appear in the same program
+// Function 2 and Function 4 Can appear in the same program
+```
+
+在上面的代码中，```Function 2```和```Function 3```的函数名相同、参数表也完全相同，有二义性，是不合法的重载，```Function 1```和```Function 4```由于传参时无法区分是否为```const```，有二义性，也是不合法的重载，只有```Function 2```和```Function 4```是合法的重载。
 
 ### 例题选讲
 
